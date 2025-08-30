@@ -1,0 +1,423 @@
+import React from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CheckCircle2, AlertTriangle, Clock, Filter, ListChecks } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
+
+// --------------------------------------
+// Seed Data (Edit these for your story)
+// --------------------------------------
+const initiatives = [
+  { id: "ACH-01", name: "ACH Dispute Experience", type: "Compliance", reg: "Reg E" },
+  { id: "LN-01", name: "Loan App Funnel", type: "Lending", reg: "GLBA" },
+];
+
+const deliveryFlow = [
+  { sprint: "S-1", wip: 6, throughput: 5, leadTime: 9, cycleTime: 5, onTime: 0.6, defects: 2 },
+  { sprint: "S-2", wip: 5, throughput: 6, leadTime: 8, cycleTime: 4, onTime: 0.7, defects: 1 },
+  { sprint: "S-3", wip: 5, throughput: 7, leadTime: 7, cycleTime: 4, onTime: 0.82, defects: 1 },
+  { sprint: "S-4", wip: 4, throughput: 7, leadTime: 6, cycleTime: 3, onTime: 0.86, defects: 0 },
+];
+
+const traceability = [
+  {
+    epic: "ACH Dispute Status",
+    story: "As a member, I can see dispute status in app",
+    ac: [
+      "Given dispute created, When I open claim, Then I see current step",
+      "Status reflects backend state within 15 minutes",
+    ],
+    tests: ["API status returns 200", "UI shows step chips", "Latency < 15m"],
+    dataImpact: "New fact_dispute_status table; model join on member_id",
+    compliance: "Reg E",
+    owner: "ZB",
+    status: "Released S-3",
+    releaseId: "2025.08.15",
+  },
+  {
+    epic: "Loan Doc Checklist",
+    story: "As an applicant, I see required docs inline",
+    ac: [
+      "Given pre-qual completed, When I advance, Then a checklist lists required docs",
+      "Uploaded docs show a checkmark and timestamp",
+    ],
+    tests: ["Checklist renders", "Upload event captured", "Conversion tracked"],
+    dataImpact: "Adds doc_upload_events; funnel step timestamps",
+    compliance: "GLBA",
+    owner: "ZB",
+    status: "In Progress S-4",
+    releaseId: "2025.09.05",
+  },
+];
+
+const risks = [
+  {
+    kind: "Risk",
+    item: "PII exposure in exports",
+    impact: "High",
+    likelihood: "Medium",
+    mitigation: "Mask fields; role-based access; audit log",
+    owner: "ZB",
+    date: "2025-08-28",
+    next: "2025-09-02",
+  },
+  {
+    kind: "Risk",
+    item: "Vendor API rate limits",
+    impact: "Medium",
+    likelihood: "Medium",
+    mitigation: "Batch writes; exponential backoff; cache reads",
+    owner: "ZB",
+    date: "2025-08-28",
+    next: "2025-09-03",
+  },
+  {
+    kind: "Decision",
+    item: "Limit WIP to 5 per squad",
+    impact: "Lead time stability",
+    likelihood: "—",
+    mitigation: "Policy adopted; surface breaches on dashboard",
+    owner: "ZB",
+    date: "2025-08-27",
+    next: "Review monthly",
+  },
+];
+
+// Helper components
+function Stat({ label, value, sub }) {
+  return (
+    <div className="rounded-2xl border p-4">
+      <div className="text-sm text-muted-foreground">{label}</div>
+      <div className="text-2xl font-semibold">{value}</div>
+      {sub && <div className="text-xs text-muted-foreground mt-1">{sub}</div>}
+    </div>
+  );
+}
+
+function SectionHeader({ title, icon: Icon }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <Icon className="h-5 w-5" />
+      <h3 className="text-lg font-semibold">{title}</h3>
+    </div>
+  );
+}
+
+// --------------------------------------
+// Module 1: Delivery Readiness Dashboard
+// --------------------------------------
+function DeliveryModule() {
+  const latest = deliveryFlow[deliveryFlow.length - 1];
+  const onTimePct = Math.round((latest.onTime || 0) * 100);
+  const defectEscape = deliveryFlow.reduce((a, b) => a + b.defects, 0);
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>Flow Trends (last 4 sprints)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="h-56">
+              <SectionHeader title="Throughput" icon={CheckCircle2} />
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={deliveryFlow}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="sprint" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="throughput" name="Done items" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="h-56">
+              <SectionHeader title="Lead & Cycle Time" icon={Clock} />
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={deliveryFlow}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="sprint" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="leadTime" name="Lead (d)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="cycleTime" name="Cycle (d)" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Delivery Snapshot</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Stat label="Current WIP" value={latest.wip} sub="Target ≤ 5" />
+            <Stat label="Throughput" value={latest.throughput} sub="per sprint" />
+            <Stat label="Lead Time" value={`${latest.leadTime} d`} sub="rolling average" />
+            <Stat label="Cycle Time" value={`${latest.cycleTime} d`} sub="rolling average" />
+          </div>
+          <div>
+            <div className="text-sm mb-1">On-time %</div>
+            <Progress value={onTimePct} />
+            <div className="text-xs text-muted-foreground mt-1">{onTimePct}% ({latest.sprint})</div>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <AlertTriangle className="h-4 w-4" />
+            Defect escape (last 4 sprints): <strong className="ml-1">{defectEscape}</strong>
+          </div>
+          <div className="space-y-2">
+            <Label>Filter by initiative</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="All initiatives" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {initiatives.map((i) => (
+                  <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// --------------------------------------
+// Module 2: Requirements → Release Traceability
+// --------------------------------------
+function TraceabilityModule() {
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>Stories & Tests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-72 rounded-md border p-4">
+            <div className="grid grid-cols-6 gap-3 text-sm font-medium text-muted-foreground mb-2">
+              <div>Epic</div>
+              <div>Story</div>
+              <div>Acceptance Criteria</div>
+              <div>Tests</div>
+              <div>Data Impact</div>
+              <div>Compliance</div>
+            </div>
+            {traceability.map((t, idx) => (
+              <div key={idx} className="grid grid-cols-6 gap-3 py-3 border-t text-sm">
+                <div className="font-medium">{t.epic}</div>
+                <div>
+                  <div>{t.story}</div>
+                  <div className="mt-1">
+                    <Badge variant="secondary">Owner: {t.owner}</Badge>
+                    <Badge className="ml-2" variant="outline">{t.status}</Badge>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  {t.ac.map((a, i) => (
+                    <div key={i} className="flex items-start gap-2"><ListChecks className="h-4 w-4 mt-0.5" />{a}</div>
+                  ))}
+                </div>
+                <div className="space-y-1">
+                  {t.tests.map((tc, i) => (
+                    <div key={i} className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5" />{tc}</div>
+                  ))}
+                </div>
+                <div>{t.dataImpact}</div>
+                <div>
+                  <Badge variant="destructive">{t.compliance}</Badge>
+                  <div className="text-xs text-muted-foreground mt-1">Release: {t.releaseId}</div>
+                </div>
+              </div>
+            ))}
+          </ScrollArea>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>New Story</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-2">
+            <Label>Epic</Label>
+            <Input placeholder="e.g., Loan App Funnel" />
+          </div>
+          <div className="grid gap-2">
+            <Label>User Story</Label>
+            <Input placeholder="As a [role], I want [action] so that [benefit]" />
+          </div>
+          <div className="grid gap-2">
+            <Label>Compliance Tag</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a tag" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="GLBA">GLBA</SelectItem>
+                <SelectItem value="Reg E">Reg E</SelectItem>
+                <SelectItem value="PCI">PCI</SelectItem>
+                <SelectItem value="NACHA">NACHA</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button className="w-full">Add (mock)</Button>
+          <p className="text-xs text-muted-foreground">This form is illustrative; wire it to your data later.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// --------------------------------------
+// Module 3: Risk & Decision Log
+// --------------------------------------
+function RiskModule() {
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle>Risks & Decisions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="h-4 w-4" />
+            <Select>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="All types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="Risk">Risk</SelectItem>
+                <SelectItem value="Decision">Decision</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <ScrollArea className="h-72 rounded-md border p-2">
+            <table className="w-full text-sm">
+              <thead className="text-left text-muted-foreground">
+                <tr>
+                  <th className="p-2">Type</th>
+                  <th className="p-2">Item</th>
+                  <th className="p-2">Impact</th>
+                  <th className="p-2">Likelihood</th>
+                  <th className="p-2">Mitigation / Rationale</th>
+                  <th className="p-2">Owner</th>
+                  <th className="p-2">Date</th>
+                  <th className="p-2">Next</th>
+                </tr>
+              </thead>
+              <tbody>
+                {risks.map((r, idx) => (
+                  <tr key={idx} className="border-t">
+                    <td className="p-2">
+                      <Badge variant={r.kind === "Risk" ? "destructive" : "secondary"}>{r.kind}</Badge>
+                    </td>
+                    <td className="p-2 font-medium">{r.item}</td>
+                    <td className="p-2">{r.impact}</td>
+                    <td className="p-2">{r.likelihood}</td>
+                    <td className="p-2">{r.mitigation}</td>
+                    <td className="p-2">{r.owner}</td>
+                    <td className="p-2">{r.date}</td>
+                    <td className="p-2">{r.next}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollArea>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add Entry (mock)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-2">
+            <Label>Type</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Risk or Decision" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Risk">Risk</SelectItem>
+                <SelectItem value="Decision">Decision</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label>Item</Label>
+            <Input placeholder="e.g., Vendor API rate limits" />
+          </div>
+          <div className="grid gap-2">
+            <Label>Mitigation / Rationale</Label>
+            <Input placeholder="Brief mitigation or rationale" />
+          </div>
+          <Button className="w-full">Log (mock)</Button>
+          <p className="text-xs text-muted-foreground">Use this as a talking prop during the call.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// --------------------------------------
+// App Shell
+// --------------------------------------
+export default function App() {
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-2xl md:text-3xl font-bold">GECU Interview — "The Bank" Mini Dashboards</h1>
+        <p className="text-sm text-muted-foreground">
+          Three razor-thin modules you can demo in 3–5 minutes: Delivery Readiness, Traceability, and Risk Log. Seeded with
+          ACH Dispute (Reg E) and Loan Funnel (GLBA) examples.
+        </p>
+      </header>
+
+      <Tabs defaultValue="delivery" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="delivery">Delivery Readiness</TabsTrigger>
+          <TabsTrigger value="trace">Traceability</TabsTrigger>
+          <TabsTrigger value="risk">Risks & Decisions</TabsTrigger>
+        </TabsList>
+        <TabsContent value="delivery" className="mt-4">
+          <DeliveryModule />
+        </TabsContent>
+        <TabsContent value="trace" className="mt-4">
+          <TraceabilityModule />
+        </TabsContent>
+        <TabsContent value="risk" className="mt-4">
+          <RiskModule />
+        </TabsContent>
+      </Tabs>
+
+      <footer className="text-xs text-muted-foreground">
+        Tip: In the call, open Delivery first, then Traceability, then Risks. Keep your narrative to ~6 sentences.
+      </footer>
+    </div>
+  );
+}
