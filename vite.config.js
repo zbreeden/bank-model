@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 export default defineConfig({
-base: '/The_Bank/'
-server: { open: true },
+base: '/bank-model/'
 build: { outDir: 'docs' }
 })
