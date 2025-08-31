@@ -1,0 +1,18 @@
+{
+  "name": "the_bank",
+  "version": "1.0.0",
+  "description": "Three razor-thin dashboards designed as props for the GECU **Delivery Analyst** phone screen.   Each module can be demoed in 2–3 minutes to show clarity, structure, and delivery discipline.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^7.1.3"
+  }
+}
