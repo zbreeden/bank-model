@@ -61,4 +61,66 @@
       <div class="grid">
         <a class="btn" href="./throughput.html" onclick="signalClick('open_throughput','Throughput','hero')">📈 Throughput & Predictability →</a>
         <a class="btn" href="./risk.html" onclick="signalClick('open_risk','Risk','hero')">⚠️ Risk & SLA →</a>
-        <a class="btn" href="./value.html" onclick="signalClick('open
+        <a class="btn" href="./value.html" onclick="signalClick('open_value','Value','hero')">🎯 Value Pulse →</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin:6px 0 8px">How to Use in the Screen</h3>
+      <ol style="margin:0 0 8px 18px;line-height:1.6">
+        <li>Open each page, speak to one sentence: <em>What this shows + why it matters</em>.</li>
+        <li>Point at a single tile trend/change and state the <em>action</em> you’d take.</li>
+        <li>Close with data lineage: metrics map to <code>bank-model.yaml</code> (and are reproducible).</li>
+      </ol>
+      <p class="muted" style="margin:8px 0 0">Docs: <a href="./README.md">README</a> • <a href="./bank-model.yaml">bank-model.yaml</a></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3 style="margin:6px 0 8px">At-a-glance (sample numbers)</h3>
+    <div class="kpis">
+      <div class="kpi"><small>Completed this sprint</small><strong>21</strong></div>
+      <div class="kpi"><small>Median cycle time</small><strong>6d</strong></div>
+      <div class="kpi"><small>SLA due next 7d</small><strong>3</strong></div>
+    </div>
+    <p class="muted" style="margin-top:8px">Replace with your toy CSV or manual updates on each page.</p>
+  </section>
+
+  <details class="panel">
+    <summary><strong>Debug / GTM</strong> — push demo events</summary>
+    <p class="muted">Buttons below push events into <code>dataLayer</code> so Tag Assistant & GA4 DebugView can see activity.</p>
+    <div class="grid">
+      <button class="btn" onclick="signalClick('cta_signup','Sign up','debug')">CTA: Sign up</button>
+      <button class="btn" onclick="pushForm('lead_form_v1','Lead form')">Form submit</button>
+      <button class="btn" onclick="pushSearch('pricing',12)">Search: pricing</button>
+      <button class="btn" onclick="pushPage('pricing','Pricing')">Virtual page_view: Pricing</button>
+    </div>
+  </details>
+
+  <footer>MIT licensed. Built for fast iteration on analytics conversations.</footer>
+</div>
+
+<script>
+  function signalClick(id,text,loc){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'cta_click', cta_id:id, cta_text:text, location:loc });
+    console.log('cta_click', {id,text,loc});
+  }
+  function pushForm(id,name){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'form_submit', form_id:id, form_name:name, fields_count:5 });
+    console.log('form_submit', {id,name});
+  }
+  function pushSearch(q,n){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'nav_search', query:q, results_count:n });
+    console.log('nav_search', {q,n});
+  }
+  function pushPage(id,title){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'page_view', page_id:id, page_title:title });
+    console.log('page_view', {id,title});
+  }
+</script>
+</body>
+</html>
