@@ -30,5 +30,36 @@ Each module can be demoed in 2–3 minutes to show clarity, structure, and deliv
 This project uses **React**, **Tailwind**, **shadcn/ui**, and **Recharts**.
 
 1. Install dependencies:
-   ```bash
-   npm install
+   bash-5.3$ npm install
+2. Start development server:
+   bash-5.3$ npm run dev
+3. Open browser to http://localhost:5173/ (or as prompted)
+
+##🎤 Suggested Demo Flow
+When screen-sharing or describing:
+
+1. Delivery Readiness
+   * “Here’s how I track flow stability: WIP, throughput, lead/cycle time, on-time %, and defect escape. You can see WIP capped at 5 improves lead time.”
+
+2. Traceability
+   *“Each story links to acceptance criteria, test cases, data impact, and compliance tags. For example, ACH status is tagged Reg E and tested end-to-end.”
+
+3. Risks & Decisions
+   *“I log risks like PII exposure, with mitigation steps, and decisions like WIP limits. This keeps compliance, ops, and delivery transparent.”
+
+--> Keep this to ~6 sentences total — short, punchy, and confident.
+
+##🧩 Customization
+- Update deliveryFlow array to adjust throughput/WIP metrics.
+- Edit traceability array to add/remove stories.
+- Add risks/decisions in the risks array.
+- Change initiative names in the initiatives array.
+
+##📌 Tips for Interview Use
+- Keep the dashboard open in 3 tabs (Delivery, Traceability, Risk).
+- Lead with Delivery → Traceability → Risk (in that order).
+- Use one credit-union–flavored caselet (ACH or Loan Funnel) as your anchor story.
+- Close with a question: “Which outcome metrics matter most for delivery success at GECU?”
+
+##📄 License
+- For interview/demo purposes only.
