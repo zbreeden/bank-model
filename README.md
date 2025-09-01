@@ -10,21 +10,36 @@ Each module can be demoed in 2–3 minutes to show clarity, structure, and deliv
   - Charts: Throughput, Lead Time, Cycle Time  
   - KPIs: WIP, On-time %, Defect Escape Rate  
   - Filter: Initiative (ACH Dispute, Loan App Funnel)
+  - Data: delivery_readiness_weekly.csv
 
 - **Module 2 — Requirements → Release Traceability**  
-  - Epic → Story → Acceptance Criteria → Tests → Data Impact → Compliance → Release ID  
+  - Epic → Story → Acceptance Criteria → Tests → Data Impact → Compliance → Release ID
+  - Data: traceability.csv  
   - Example stories:
     - ACH Dispute Status (Reg E)
     - Loan Doc Checklist (GLBA)
 
 - **Module 3 — Risk & Decision Log**  
-  - Track Risks (impact, likelihood, mitigation) and Decisions (rationale, owner, next review)  
+  - Track Risks (impact, likelihood, mitigation) and Decisions (rationale, owner, next review)
+  - Data: risk_decision_log.csv 
   - Example entries:
     - Risk: PII exposure in exports  
     - Risk: Vendor API rate limits  
     - Decision: WIP capped at 5 per squad
 
 ---
+
+## 📊 Data
+
+- Delivery Readiness (weekly): delivery_readiness_weekly.csv
+Fields: week_start, initiative, squad, wip, wip_cap, throughput, lead_time_days_avg, cycle_time_days_avg, on_time_deliveries, on_time_percent, defect_count, defect_escape_count, defect_escape_rate, blocked_items
+
+- Requirements→Release Traceability: traceability.csv
+Columns link epic → story → acceptance_criteria → test_cases → data_impact → compliance_tags → release_id/release_date/status
+Includes examples: ACH Dispute Status (Reg E) and Loan Doc Checklist (GLBA).
+
+- Risk & Decision Log: risk_decision_log.csv
+Mix of Risks (with impact, likelihood, risk_score) and Decisions (with rationale and next review).
 
 ## 🚀 How to Run
 This project uses **React**, **Tailwind**, **shadcn/ui**, and **Recharts**.
