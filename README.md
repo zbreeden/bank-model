@@ -56,12 +56,14 @@ When screen-sharing or describing:
 1. Delivery Readiness
    * “Here’s how I track flow stability: WIP, throughput, lead/cycle time, on-time %, and defect escape. You can see WIP capped at 5 improves lead time.”
 
-https://app.powerbi.com/reportEmbed?reportId=5ccf2c2f-2272-4165-a6a3-3d5a528a4be7&autoAuth=true&ctid=dc1332eb-e1d9-4c3f-8456-0ab8e38f68b6
+https://app.powerbi.com/groups/30589bbb-6f22-4279-8404-6310b94e0535/reports/8c7a089a-0e39-4fe6-b02c-2d34f4c6ac31/c553bc79230aac3dc0ab?experience=power-bi
 
 2. Traceability
    *“Each story links to acceptance criteria, test cases, data impact, and compliance tags. For example, ACH status is tagged Reg E and tested end-to-end.”
 
-3. Risks & Decisions
+https://app.powerbi.com/groups/30589bbb-6f22-4279-8404-6310b94e0535/reports/8c7a089a-0e39-4fe6-b02c-2d34f4c6ac31/38b6c2fdc631c5462d87?experience=power-bi
+
+4. Risks & Decisions
    *“I log risks like PII exposure, with mitigation steps, and decisions like WIP limits. This keeps compliance, ops, and delivery transparent.”
 
 --> Keep this to ~6 sentences total — short, punchy, and confident.
