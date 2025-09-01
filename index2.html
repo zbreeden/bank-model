@@ -1,1 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>The Bank — Mini Dashboards (GECU)</title>
+  <meta name="description" content="Three razor-thin dashboards to drive delivery conversations: Pace, Risk, and Value.">
 
+  <!-- Context BEFORE GTM -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ site_area: 'bank' });
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+      var f=d.getElementsByTagName(s)[0], j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
+      j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl; f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WVC4SNLB');
+  </script>
+
+  <style>
+    :root{--bg:#0b1220;--panel:#0f1728;--text:#e6edf3;--muted:#9fb0d1;--border:#223052;--accent:#7aa2ff}
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .shell{max-width:980px;margin:0 auto;padding:28px 20px}
+    header{display:flex;justify-content:space-between;align-items:center;padding:6px 0 18px}
+    .brand{font-weight:700;letter-spacing:.2px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#121b2f;color:var(--text)}
+    .btn:hover{background:#16243a}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center;margin:14px 0}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:14px}
+    .muted{color:var(--muted)}
+    .kpis{display:flex;gap:10px;margin-top:10px}
+    .kpi{flex:1;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#101a2d}
+    .kpi small{display:block;color:var(--muted)}
+    @media (max-width:880px){.hero{grid-template-columns:1fr}}
+    code{background:#0f1728;border:1px solid var(--border);padding:2px 6px;border-radius:8px}
+    footer{margin:28px 0;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WVC4SNLB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="shell">
+  <header>
+    <div class="brand">FourTwenty • The Bank</div>
+    <nav>
+      <a class="btn" href="https://zbreeden.github.io/FourTwentyAnalytics/" onclick="signalClick('back_to_main','Back to FourTwenty','header')">← Back to FourTwenty</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1 style="margin:0 0 8px">The Bank — Mini Dashboards for Delivery</h1>
+      <p class="muted">Three razor-thin boards to steer a phone screen: <em>Throughput &amp; Predictability</em>, <em>Risk &amp; SLA</em>, and <em>Value Pulse</em>. Each page has 3 tiles, a single talking point, and clear definitions.</p>
+      <div class="grid">
+        <a class="btn" href="./throughput.html" onclick="signalClick('open_throughput','Throughput','hero')">📈 Throughput & Predictability →</a>
+        <a class="btn" href="./risk.html" onclick="signalClick('open_risk','Risk','hero')">⚠️ Risk & SLA →</a>
+        <a class="btn" href="./value.html" onclick="signalClick('open_value','Value','hero')">🎯 Value Pulse →</a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin:6px 0 8px">How to Use in the Screen</h3>
+      <ol style="margin:0 0 8px 18px;line-height:1.6">
+        <li>Open each page, speak to one sentence: <em>What this shows + why it matters</em>.</li>
+        <li>Point at a single tile trend/change and state the <em>action</em> you’d take.</li>
+        <li>Close with data lineage: metrics map to <code>bank-model.yaml</code> (and are reproducible).</li>
+      </ol>
+      <p class="muted" style="margin:8px 0 0">Docs: <a href="https://github.com/zbreeden/bank-model/blob/main/README.md">README</a> • <a href="https://github.com/zbreeden/bank-model/blob/main/bank-model.yaml">bank-model.yaml</a></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3 style="margin:6px 0 8px">At-a-glance (sample numbers)</h3>
+    <div class="kpis">
+      <div class="kpi"><small>Completed this sprint</small><strong>21</strong></div>
+      <div class="kpi"><small>Median cycle time</small><strong>6d</strong></div>
+      <div class="kpi"><small>SLA due next 7d</small><strong>3</strong></div>
+    </div>
+    <p class="muted" style="margin-top:8px">Replace with your toy CSV or manual updates on each page.</p>
+  </section>
+
+  <details class="panel">
+    <summary><strong>Debug / GTM</strong> — push demo events</summary>
+    <p class="muted">Buttons below push events into <code>dataLayer</code> so Tag Assistant & GA4 DebugView can see activity.</p>
+    <div class="grid">
+      <button class="btn" onclick="signalClick('cta_signup','Sign up','debug')">CTA: Sign up</button>
+      <button class="btn" onclick="pushForm('lead_form_v1','Lead form')">Form submit</button>
+      <button class="btn" onclick="pushSearch('pricing',12)">Search: pricing</button>
+      <button class="btn" onclick="pushPage('pricing','Pricing')">Virtual page_view: Pricing</button>
+    </div>
+  </details>
+
+  <footer>MIT licensed. Built for fast iteration on analytics conversations.</footer>
+</div>
+
+<script>
+  function signalClick(id,text,loc){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'cta_click', cta_id:id, cta_text:text, location:loc });
+    console.log('cta_click', {id,text,loc});
+  }
+  function pushForm(id,name){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'form_submit', form_id:id, form_name:name, fields_count:5 });
+    console.log('form_submit', {id,name});
+  }
+  function pushSearch(q,n){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'nav_search', query:q, results_count:n });
+    console.log('nav_search', {q,n});
+  }
+  function pushPage(id,title){
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event:'page_view', page_id:id, page_title:title });
+    console.log('page_view', {id,title});
+  }
+</script>
+</body>
+</html>
