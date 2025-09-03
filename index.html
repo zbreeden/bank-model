@@ -1,217 +1,256 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!--
-    Generic index.html seed for FourTwenty Analytics modules
-    ─────────────────────────────────────────────────────────
-    How to use:
-      1) Replace the placeholders in the MODULE config below (name, emoji, repoUser, repoName).
-      2) Replace GA container and/or GA4 measurement IDs below.
-         • Prefer GTM to deploy GA4. If you also hard‑wire GA4 via gtag, avoid double page_view.
-      3) Push this file to the repo root (works on GitHub Pages).
-      4) Keep README.md in the repo; this page auto-renders it.
-  -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Modular dashboard concept seed page with README render and analytics hooks." />
+  <title>The Bank — Executive Delivery Scorecard</title>
+  <meta name="description" content="A lightweight, executive-ready delivery scorecard for GECU built on flow signals: WIP, Throughput, Lead/Cycle Time, On‑Time %, Defect Escape, Aging WIP." />
   <meta name="color-scheme" content="light dark" />
-  <title>🏦 The Bank — FourTwenty Analytics</title>
-
-  <!-- ===================== GTM (recommended) ===================== -->
-  <!-- Replace GTM-XXXXXXX with your container ID. If you plan to use GA4 via GTM, you don't need the GA4 snippet below. -->
-  <script>
-    // Set to false to temporarily disable GTM without removing the snippet
-    const ENABLE_GTM = true;
-    const GTM_ID = 'GTM-WCV4SNLB'; // ← TODO: set your GTM container id
-    if (ENABLE_GTM && GTM_ID && !/GTM-XXXXXXXX/.test(GTM_ID)) {
-      (function(w,d,s,l,i){
-        w[l]=w[l]||[]; w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
-        var f=d.getElementsByTagName(s)[0], j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
-        j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl; f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer',GTM_ID);
-    }
-  </script>
-
-  <!-- ===================== GA4 (optional direct gtag) ===================== -->
-  <!-- If you deploy GA4 via GTM, you can keep this block commented to prevent duplicate page_view. -->
-  <!--
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);} // reuse dataLayer for coherence
-    gtag('js', new Date());
-    // If you also have a GTM GA4 tag sending page_view, set send_page_view:false here
-    gtag('config', 'G-XXXXXXXXXX', { send_page_view: true }); // ← TODO: set your GA4 ID
-  </script>
-  -->
-
-  <!-- Marked.js for README rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
   <style>
-    :root { --bg: #0b0b10; --panel: #0f1220; --text: #e9eefb; --muted:#98a2b3; --brand:#5eead4; --accent:#a78bfa; }
-    @media (prefers-color-scheme: light) {
-      :root { --bg:#f7f7fb; --panel:#ffffff; --text:#101828; --muted:#667085; --brand:#0ea5e9; --accent:#7c3aed; }
-    }
-    html, body { height: 100%; }
-    body { margin:0; font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial; background:var(--bg); color:var(--text); }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:20px; background:linear-gradient(135deg, var(--panel), transparent 60%); border-radius:16px; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); }
-    .title { display:flex; align-items:center; gap:12px; }
-    .title .emoji { font-size: 28px; }
-    .title h1 { margin:0; font-size: clamp(20px, 2.6vw, 28px); letter-spacing:0.2px; }
-    .meta { display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size: 14px; }
-    .badges { display:flex; gap:8px; flex-wrap:wrap; }
-    .badge { padding:4px 10px; border-radius:999px; background: rgb(255 255 255 / 0.06); color:var(--text); border:1px solid rgb(255 255 255 / 0.08); font-size:12px; }
-    a { color: var(--brand); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    main { margin-top: 22px; display:grid; gap:20px; grid-template-columns: 1fr; }
-    .card { background: var(--panel); border:1px solid rgb(255 255 255 / 0.06); border-radius: 16px; padding: 20px; box-shadow: 0 10px 28px rgb(0 0 0 / 0.12); }
-    .card h2 { margin: 0 0 12px; font-size: 18px; }
-    .readme { min-height: 200px; }
-    .readme .md h1 { font-size: 28px; margin-top: 0.4em; }
-    .readme .md h2 { font-size: 22px; border-bottom:1px solid rgb(127 127 127 / 0.25); padding-bottom: 4px; }
-    .readme .md pre { overflow:auto; padding:14px; border-radius:12px; background: #0a0f1a; color:#e6edf3; border: 1px solid rgb(255 255 255 / 0.06); }
-    .readme .md code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; }
-    footer { margin: 22px 0 40px; color: var(--muted); font-size: 14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .links { display:flex; gap:12px; flex-wrap:wrap; }
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-      .back { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; font-size:14px; background: rgb(255 255 255 / 0.06); border:1px solid rgb(255 255 255 / 0.08); color: var(--text); }
-    .back:hover { text-decoration:none; filter: brightness(1.05); }
-</style>
+    :root { --fg:#111; --bg:#fff; --muted:#6b7280; --card:#f8fafc; --border:#e5e7eb; }
+    @media (prefers-color-scheme: dark){ :root{ --fg:#e5e7eb; --bg:#0b0f14; --muted:#9aa3af; --card:#121820; --border:#223042; } }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--fg); background:var(--bg); }
+    header{ padding:24px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; backdrop-filter:saturate(180%) blur(6px); background:color-mix(in oklab, var(--bg) 85%, transparent); z-index:20; }
+    .wrap{ max-width:1100px; margin:0 auto; }
+    h1{ font-size:22px; margin:0 0 4px; }
+    .sub{ color:var(--muted); font-size:14px; }
+    .grid{ display:grid; grid-template-columns: repeat(6, 1fr); gap:12px; }
+    @media (max-width:1000px){ .grid{ grid-template-columns: repeat(3,1fr);} }
+    @media (max-width:640px){ .grid{ grid-template-columns: repeat(2,1fr);} }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .kpi h3{ font-size:12px; margin:0; color:var(--muted);} 
+    .kpi .v{ font-size:24px; font-weight:700; margin-top:6px; }
+    .kpi .s{ font-size:12px; color:var(--muted); }
+    section{ padding:16px; }
+    h2{ font-size:16px; margin:0 0 12px; }
+    canvas{ width:100% !important; height:360px !important; }
+    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+    @media (max-width:960px){ .row{ grid-template-columns:1fr; }}
+    .table{ width:100%; border-collapse:collapse; font-size:14px; }
+    .table th,.table td{ padding:8px 10px; border-top:1px solid var(--border);} 
+    .muted{ color:var(--muted); }
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; }
+    footer{ padding:24px 16px; color:var(--muted); font-size:12px; }
+    .ok{ color:#16a34a; } .warn{ color:#eab308; } .risk{ color:#dc2626; }
+  </style>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 </head>
 <body>
-  <!-- GTM (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WCV4SNLB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <header>
+    <div class="wrap">
+      <h1>🏦 The Bank — Executive Delivery Scorecard</h1>
+      <div class="sub">Flow signals for predictable delivery · <span id="updated" class="muted">loading…</span></div>
+    </div>
+  </header>
 
-  <div class="wrap">
-    <header>
-      <a class="back" href="https://zbreeden.github.io/FourTwentyAnalytics/" id="back-home" data-analytics="back_home" aria-label="Back to FourTwenty Analytics"><span id="back-label">Back to FourTwenty Analytics</span></a>
-      <div class="title">
-        <div class="emoji" id="module-emoji" aria-hidden="true">🏦</div>
-        <h1 id="module-name">The Bank</h1>
+  <main class="wrap">
+    <!-- KPI GRID -->
+    <section>
+      <div class="grid" id="kpis">
+        <!-- Populated by JS -->
       </div>
-      <div class="badges">
-        <span class="badge" id="module-version">v0.1</span>
-        <span class="badge" id="module-status">status: developing</span>
+    </section>
+
+    <!-- CHARTS -->
+    <section class="row">
+      <div class="card">
+        <h2>Inflow vs Throughput vs WIP (last 12 weeks)</h2>
+        <canvas id="chartFlow"></canvas>
       </div>
-    </header>
-
-    <main>
-      <section class="card">
-        <h2>README.md</h2>
-        <div class="meta">Rendered from <code>README.md</code> in this repo.</div>
-        <div id="readme" class="readme" aria-live="polite">
-          <div class="md" id="readme-md" aria-busy="true"></div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Module Details</h2>
-        <dl>
-          <dt class="sr-only">Name</dt><dd id="detail-name">The Bank</dd>
-          <dt class="sr-only">Orbit</dt><dd id="detail-orbit">Delivery & Insight</dd>
-          <dt class="sr-only">Glyph</dt><dd id="detail-glyph">🏦</dd>
-        </dl>
-        <div class="links" id="quick-links">
-          <!-- Filled by JS with repo links -->
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div>Last updated: <span id="last-updated"></span></div>
-      <div class="links">
-        <a href="https://github.com/zbreeden/bank-model/edit/main/README.md" id="link-edit-readme" data-analytics="edit_readme">Edit README</a>
-        <a href="https://github.com/zbreeden/bank-model/tree/main" id="link-repo" data-analytics="open_repo">Open Repo</a>
-        <a href="https://github.com/zbreeden/bank-model/issues" id="link-issues" data-analytics="open_issues">Issues</a>
+      <div class="card">
+        <h2>Lead Time (days) & On‑Time % (last 12 weeks)</h2>
+        <canvas id="chartQuality"></canvas>
       </div>
-    </footer>
-  </div>
+    </section>
+
+    <!-- CAPACITY vs DEMAND + RISKS -->
+    <section class="row">
+      <div class="card">
+        <h2>Capacity vs Demand — This Week</h2>
+        <table class="table" id="capTable">
+          <thead><tr><th>Capacity (slots)</th><th>Demand (new requests)</th><th>Load vs Capacity</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="muted" style="margin-top:8px">Goal: Throughput ≥ Demand · Keep WIP under cap.</p>
+      </div>
+      <div class="card">
+        <h2>Risks & Actions — This Week</h2>
+        <ul id="risks" class="muted" style="margin:0; padding-left:18px"></ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Definitions</h2>
+      <p class="muted">WIP — items in progress · Throughput — finished/week · Lead Time — request→done (median days) · On‑Time % — delivered by commit date · Defect Escape — prod‑found/total · Aging WIP — in‑progress items &gt; 10 days.</p>
+      <p class="muted">Audit notes: delivery metadata only (no member PII); weekly CSV + PDF recommended.</p>
+    </section>
+  </main>
+
+  <footer class="wrap">Made for GECU panel preview. Drop <code>data/bank_scorecard.csv</code> into this repo or point to a raw URL in the config.</footer>
 
   <script>
-    // ─────────────── Module config (edit these) ───────────────
-    const MODULE = {
-      name: 'The Bank',          // ← e.g., 'The Evaluator'
-      emoji: '🏦',                  // ← module emoji
-      orbit: 'Delivery & Insight',        // ← requested orbit
-      version: '0.1.0',
-      status: 'Development',       // ← requested status
-      repoUser: 'zbreeden',        // ← requested user
-      repoName: 'bank-model'     // ← requested repo
+  // ────────────────────────────────────────────────────────────────────────────
+  // CONFIG — set these to point at your GitHub repo CSV
+  // Option A: Use local CSV in /data (works on GitHub Pages when file is committed)
+  const USE_LOCAL = true;                 // set false to fetch from another repo
+  const LOCAL_PATH = 'data/bank_scorecard.csv';
+
+  // Option B: Raw GitHub CSV (if hosted in another repo)
+  const GITHUB = { owner: 'zbreeden', repo: 'bank-model', branch: 'main', path: 'data/bank_scorecard.csv' };
+  const RAW_URL = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
+
+  // Domain parameters
+  const WIP_CAP = 20; // team policy example — show visually on chart
+
+  // Utility: safe number formatters
+  const fmt = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
+  const pct = (v)=> (v==null? '—' : new Intl.NumberFormat(undefined, { style:'percent', maximumFractionDigits:1 }).format(v));
+
+  async function loadCSV(url){
+    const res = await fetch(url, { cache:'no-cache' });
+    if(!res.ok) throw new Error('Fetch failed: '+res.status);
+    const text = await res.text();
+    // Simple CSV parser (no quoted commas in our file)
+    const [header, ...lines] = text.trim().split(/\r?\n/);
+    const cols = header.split(',').map(h=>h.trim());
+    return lines.map(line=>{
+      const vals = line.split(',');
+      const row = {}; cols.forEach((c,i)=> row[c]=vals[i]!==undefined? vals[i].trim(): '' );
+      // coerce types we expect
+      ['inflow','throughput','wip_eow','lead_time_median_days','on_time_pct','defects_total','defects_escaped','aging_wip_gt_10d','demand','capacity_slots']
+        .forEach(k=> row[k] = row[k]!==''? Number(row[k]): null);
+      return row;
+    });
+  }
+
+  function toSeries(rows){
+    // Expect ascending time order; keep last 12
+    const last = rows.slice(-12);
+    const labels = last.map(r=> r.week_start);
+    return {
+      labels,
+      inflow: last.map(r=> r.inflow),
+      throughput: last.map(r=> r.throughput),
+      wip: last.map(r=> r.wip_eow),
+      lead: last.map(r=> r.lead_time_median_days),
+      ontime: last.map(r=> r.on_time_pct),
+      defectsTotal: last.map(r=> r.defects_total),
+      defectsEsc: last.map(r=> r.defects_escaped),
+      aging: last.map(r=> r.aging_wip_gt_10d),
+      demand: last.map(r=> r.demand),
+      capacity: last.map(r=> r.capacity_slots),
+      latest: last[last.length-1]
     };
+  }
 
-    // ─────────────── Analytics helpers ───────────────
-    window.dataLayer = window.dataLayer || [];
-    function track(eventName, params={}) {
-      const payload = { event: eventName, ...params, module_name: MODULE.name, module_orbit: MODULE.orbit };
-      dataLayer.push(payload);
-      // Optional: forward to gtag if present (direct GA4 setup)
-      if (typeof gtag === 'function') { gtag('event', eventName, payload); }
-    }
+  function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
 
-    function signalNavClick(action, label, context) {
-      track('nav_click', { action, label, context });
-    }
+  function renderKPIs(s){
+    const escRate = s.latest.defects_total? (s.latest.defects_escaped / s.latest.defects_total): 0;
+    const kpis = [
+      { label:'WIP (in progress)', value: fmt.format(s.latest.wip_eow) },
+      { label:'Throughput (done/week)', value: fmt.format(s.latest.throughput) },
+      { label:'Median Lead Time (days)', value: fmt.format(s.latest.lead_time_median_days) },
+      { label:'On‑Time %', value: fmt.format(s.latest.on_time_pct) + '%' },
+      { label:'Defect Escape', value: `${fmt.format(s.latest.defects_escaped)}/${fmt.format(s.latest.defects_total)} (${fmt.format(Math.round(escRate*100))}%)` },
+      { label:'Aging WIP (>10d)', value: fmt.format(s.latest.aging_wip_gt_10d) }
+    ];
+    const grid = document.getElementById('kpis');
+    grid.innerHTML = '';
+    kpis.forEach(k=>{
+      grid.appendChild(el(`<div class="card kpi"><h3>${k.label}</h3><div class="v">${k.value}</div></div>`));
+    });
+  }
 
-    // ─────────────── README rendering ───────────────
-    
-async function loadReadme() {
-      try {
-        const res = await fetch('README.md', { cache: 'no-store' });
-        if (!res.ok) throw new Error('README.md not found');
-        const md = await res.text();
-        const html = marked.parse(md, { mangle:false, headerIds:true });
-        document.getElementById('readme-md').innerHTML = html;
-        track('readme_rendered', { ok: true });
-      } catch (err) {
-        document.getElementById('readme-md').innerHTML = '<p>Could not load <code>README.md</code>. Ensure it exists at the repo root.</p>';
-        track('readme_rendered', { ok: false, message: String(err) });
+  function renderCapacity(s){
+    const tbody = document.querySelector('#capTable tbody');
+    const cap = s.latest.capacity_slots; const dem = s.latest.demand;
+    const load = cap? (dem/cap): 0; const cls = load<=0.9? 'ok' : (load<=1? 'warn':'risk');
+    tbody.innerHTML = `<tr><td>${fmt.format(cap)}</td><td>${fmt.format(dem)}</td><td class="${cls}">${pct(load)}</td></tr>`;
+  }
+
+  function renderRisks(s){
+    const items = [];
+    if(s.latest.demand > s.latest.throughput){ items.push(`Backlog pressure: demand (${s.latest.demand}) exceeds throughput (${s.latest.throughput}). → Action: review WIP, defer lower‑value items, protect capacity.`); }
+    if(s.latest.on_time_pct < 90){ items.push(`On‑Time below target (now ${s.latest.on_time_pct}%). → Action: confirm commit dates, escalate blockers, trim WIP.`); }
+    const escRate = s.latest.defects_total? (s.latest.defects_escaped/s.latest.defects_total): 0;
+    if(escRate > 0.10){ items.push(`Quality risk: defect escape ${(escRate*100).toFixed(0)}%. → Action: tighten Definition of Done/UAT checks.`); }
+    if(s.latest.wip_eow > WIP_CAP){ items.push(`WIP above cap (${s.latest.wip_eow} > ${WIP_CAP}). → Action: pause starts until aging items move.`); }
+    if(items.length===0) items.push('No material risks detected this week. Keep WIP under cap and monitor aging WIP.');
+    const ul = document.getElementById('risks');
+    ul.innerHTML = items.map(t=>`<li>${t}</li>`).join('');
+  }
+
+  function chartFlow(ctx, s){
+    const capLine = new Array(s.labels.length).fill(WIP_CAP);
+    return new Chart(ctx, {
+      type:'line',
+      data:{ labels:s.labels, datasets:[
+        { label:'Inflow', data:s.inflow, tension:0.25, borderWidth:2, pointRadius:0 },
+        { label:'Throughput', data:s.throughput, tension:0.25, borderWidth:2, pointRadius:0 },
+        { label:'WIP (EoW)', data:s.wip, tension:0.25, borderWidth:2, pointRadius:0 },
+        { label:'WIP Cap', data:capLine, borderDash:[6,6], borderWidth:2, pointRadius:0 }
+      ]},
+      options:{
+        interaction:{ mode:'index', intersect:false },
+        plugins:{ legend:{ position:'bottom' } },
+        scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true } }
       }
-    }
+    });
+  }
 
+  function chartQuality(ctx, s){
+    return new Chart(ctx, {
+      type:'line',
+      data:{ labels:s.labels, datasets:[
+        { label:'Lead Time (days)', data:s.lead, yAxisID:'y', tension:0.25, borderWidth:2, pointRadius:0 },
+        { label:'On‑Time %', data:s.ontime, yAxisID:'y1', tension:0.25, borderWidth:2, pointRadius:0 }
+      ]},
+      options:{
+        interaction:{ mode:'index', intersect:false },
+        plugins:{ legend:{ position:'bottom' } },
+        scales:{
+          y:{ beginAtZero:true, title:{ display:true, text:'Days' } },
+          y1:{ beginAtZero:true, min:70, max:100, position:'right', title:{ display:true, text:'%' }, grid:{ drawOnChartArea:false } },
+          x:{ grid:{ display:false } }
+        }
+      }
+    });
+  }
 
-    // ─────────────── Page init ───────────────
-    function initMeta() {
-      const title = `${MODULE.emoji} ${MODULE.name} — FourTwenty Analytics`;
-      document.title = title;
-      document.getElementById('module-name').textContent = MODULE.name;
-      document.getElementById('module-emoji').textContent = MODULE.emoji;
-      document.getElementById('module-version').textContent = `v${MODULE.version}`;
-      document.getElementById('module-status').textContent = `status: ${MODULE.status}`;
-      document.getElementById('detail-name').textContent = `${MODULE.emoji} ${MODULE.name}`;
-      document.getElementById('detail-orbit').textContent = `orbit: ${MODULE.orbit}`;
-      document.getElementById('detail-glyph').textContent = `glyph: ${MODULE.emoji}`;
+  async function main(){
+    const url = (USE_LOCAL? LOCAL_PATH : RAW_URL);
+    const rows = await loadCSV(url).catch(async (e)=>{
+      console.warn('Primary CSV fetch failed, falling back to embedded sample.', e);
+      // Minimal fallback (8 weeks) if CSV missing — replace by committing data/bank_scorecard.csv
+      const sample = [
+        {week_start:'2025-06-30', inflow:18, throughput:16, wip_eow:14, lead_time_median_days:11, on_time_pct:86, defects_total:6, defects_escaped:1, aging_wip_gt_10d:4, demand:18, capacity_slots:20},
+        {week_start:'2025-07-07', inflow:17, throughput:17, wip_eow:13, lead_time_median_days:10, on_time_pct:88, defects_total:5, defects_escaped:1, aging_wip_gt_10d:3, demand:17, capacity_slots:20},
+        {week_start:'2025-07-14', inflow:19, throughput:18, wip_eow:12, lead_time_median_days:10, on_time_pct:90, defects_total:4, defects_escaped:0, aging_wip_gt_10d:3, demand:19, capacity_slots:21},
+        {week_start:'2025-07-21', inflow:20, throughput:18, wip_eow:14, lead_time_median_days:10, on_time_pct:89, defects_total:5, defects_escaped:1, aging_wip_gt_10d:4, demand:20, capacity_slots:19},
+        {week_start:'2025-07-28', inflow:16, throughput:17, wip_eow:13, lead_time_median_days:9, on_time_pct:91, defects_total:4, defects_escaped:0, aging_wip_gt_10d:3, demand:16, capacity_slots:20},
+        {week_start:'2025-08-04', inflow:18, throughput:19, wip_eow:12, lead_time_median_days:9, on_time_pct:92, defects_total:4, defects_escaped:0, aging_wip_gt_10d:2, demand:18, capacity_slots:20},
+        {week_start:'2025-08-11', inflow:17, throughput:18, wip_eow:11, lead_time_median_days:8, on_time_pct:93, defects_total:3, defects_escaped:0, aging_wip_gt_10d:2, demand:17, capacity_slots:22},
+        {week_start:'2025-08-18', inflow:18, throughput:19, wip_eow:10, lead_time_median_days:8, on_time_pct:94, defects_total:3, defects_escaped:0, aging_wip_gt_10d:2, demand:18, capacity_slots:20}
+      ];
+      return sample;
+    });
 
-      const host = location.hostname; // e.g., zbreeden.github.io
-      const pathParts = location.pathname.split('/').filter(Boolean); // ['', 'repo', ''] -> ['repo']
-      const inferredRepo = MODULE.repoName || (pathParts[0] || '');
-      const inferredUser = MODULE.repoUser || host.replace('.github.io','');
+    const s = toSeries(rows);
+    renderKPIs(s);
+    renderCapacity(s);
+    renderRisks(s);
+    document.getElementById('updated').textContent = `Week of ${s.latest.week_start}`;
 
-      const repoURL   = `https://github.com/${inferredUser}/${inferredRepo}`;
-      const issuesURL = `${repoURL}/issues`;
-      const editReadmeURL = `${repoURL}/edit/main/README.md`;
+    const fctx = document.getElementById('chartFlow').getContext('2d');
+    chartFlow(fctx, s);
+    const qctx = document.getElementById('chartQuality').getContext('2d');
+    chartQuality(qctx, s);
+  }
 
-      const link = (href, text, id, ana) => {
-        const a = document.createElement('a');
-        a.href = href; a.textContent = text; a.id = id; a.dataset.analytics = ana;
-        a.addEventListener('click', () => signalNavClick(ana, href, 'footer')); return a;
-      };
-
-      const ql = document.getElementById('quick-links');
-      ql.innerHTML = '';
-      ql.append(link(repoURL, 'GitHub Repo', 'ql-repo', 'open_repo'));
-      ql.append(link(issuesURL, 'Issues', 'ql-issues', 'open_issues'));
-      ql.append(link(editReadmeURL, 'Edit README', 'ql-edit', 'edit_readme'));
-
-      document.getElementById('link-edit-readme').href = editReadmeURL;
-      document.getElementById('link-repo').href = repoURL;
-      document.getElementById('link-issues').href = issuesURL;
-
-      document.getElementById('last-updated').textContent = new Date(document.lastModified).toLocaleString();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => { initMeta(); loadReadme(); track('module_loaded'); const back = document.getElementById('back-home'); if (back) { back.addEventListener('click', () => signalNavClick('back_home','FourTwentyAnalytics','header')); const label = document.getElementById('back-label'); if (label) { label.textContent = `${MODULE.emoji} Back to FourTwenty Analytics`; } } }); 
+  window.addEventListener('DOMContentLoaded', main);
   </script>
 </body>
 </html>
