@@ -1,86 +1,27 @@
-# GECU Interview — "The Bank" Mini Dashboards
+# The Bank — Delivery Scorecard
 
-Three razor-thin dashboards designed as props for the GECU **Delivery Analyst** phone screen.  
-Each module can be demoed in 2–3 minutes to show clarity, structure, and delivery discipline.
+**What it is**: A lightweight, auditable view of flow health for leadership.  
+**Signals**: WIP, Throughput, Lead/Cycle Time, On‑Time %, Defect Escape, Aging WIP.  
+**Why it matters**: Predictable delivery → faster member outcomes, fewer escalations.
 
----
+## Quick Start
+1. Download `data/bank_scorecard.csv` (sample provided).  
+2. Open `Power BI` (or Excel) → import the CSV.  
+3. Build a simple page:
+   - KPI cards: WIP, Throughput, Median Lead Time, On‑Time %, Defect Escape rate.
+   - Line chart: Inflow vs Throughput (weekly); secondary line: WIP EoW.
+   - Table: Capacity vs Demand (this week); list Aging WIP > 10 days.
+4. (Optional) Save a weekly PDF for audit; commit to `/reports/`.
 
-## 📂 Project Structure
-- **Module 1 — Delivery Readiness Dashboard**  
-  - Charts: Throughput, Lead Time, Cycle Time  
-  - KPIs: WIP, On-time %, Defect Escape Rate  
-  - Filter: Initiative (ACH Dispute, Loan App Funnel)
-  - Data: delivery_readiness_weekly.csv
+## Definitions
+- **WIP**: Items actively in progress (team cap policy: e.g., 20).  
+- **Throughput**: Items finished per week.  
+- **Lead Time (median)**: Request → Done, in days.  
+- **On‑Time %**: Delivered on/before committed date.  
+- **Defect Escape**: Prod‑found defects / total defects.  
+- **Aging WIP**: In progress > 10 days.
 
-- **Module 2 — Requirements → Release Traceability**  
-  - Epic → Story → Acceptance Criteria → Tests → Data Impact → Compliance → Release ID
-  - Data: traceability.csv  
-  - Example stories:
-    - ACH Dispute Status (Reg E)
-    - Loan Doc Checklist (GLBA)
-
-- **Module 3 — Risk & Decision Log**  
-  - Track Risks (impact, likelihood, mitigation) and Decisions (rationale, owner, next review)
-  - Data: risk_decision_log.csv 
-  - Example entries:
-    - Risk: PII exposure in exports  
-    - Risk: Vendor API rate limits  
-    - Decision: WIP capped at 5 per squad
-
----
-
-## 📊 Data
-
-- Delivery Readiness (weekly): delivery_readiness_weekly.csv
-Fields: week_start, initiative, squad, wip, wip_cap, throughput, lead_time_days_avg, cycle_time_days_avg, on_time_deliveries, on_time_percent, defect_count, defect_escape_count, defect_escape_rate, blocked_items
-
-- Requirements→Release Traceability: traceability.csv
-Columns link epic → story → acceptance_criteria → test_cases → data_impact → compliance_tags → release_id/release_date/status
-Includes examples: ACH Dispute Status (Reg E) and Loan Doc Checklist (GLBA).
-
-- Risk & Decision Log: risk_decision_log.csv
-Mix of Risks (with impact, likelihood, risk_score) and Decisions (with rationale and next review).
-
-## 🚀 How to Run
-This project uses **React**, **Tailwind**, **shadcn/ui**, and **Recharts**.
-
-1. Install dependencies:
-   bash-5.3$ npm install
-2. Start development server:
-   bash-5.3$ npm run dev
-3. Open browser to http://localhost:5173/ (or as prompted)
-
-##🎤 Suggested Demo Flow
-When screen-sharing or describing:
-
-1. Delivery Readiness
-   * “Here’s how I track flow stability: WIP, throughput, lead/cycle time, on-time %, and defect escape. You can see WIP capped at 5 improves lead time.”
-
-(https://app.powerbi.com/groups/me/reports/5ccf2c2f-2272-4165-a6a3-3d5a528a4be7/c553bc79230aac3dc0ab?experience=power-bi
-
-2. Traceability
-   *“Each story links to acceptance criteria, test cases, data impact, and compliance tags. For example, ACH status is tagged Reg E and tested end-to-end.”
-
-https://app.powerbi.com/groups/me/reports/5ccf2c2f-2272-4165-a6a3-3d5a528a4be7/38b6c2fdc631c5462d87?experience=power-bi
-
-4. Risks & Decisions
-   *“I log risks like PII exposure, with mitigation steps, and decisions like WIP limits. This keeps compliance, ops, and delivery transparent.”
-
-https://app.powerbi.com/groups/me/reports/5ccf2c2f-2272-4165-a6a3-3d5a528a4be7/55c3012922667a23d6cd?experience=power-bi
-
---> Keep this to ~6 sentences total — short, punchy, and confident.
-
-##🧩 Customization
-- Update deliveryFlow array to adjust throughput/WIP metrics.
-- Edit traceability array to add/remove stories.
-- Add risks/decisions in the risks array.
-- Change initiative names in the initiatives array.
-
-##📌 Tips for Interview Use
-- Keep the dashboard open in 3 tabs (Delivery, Traceability, Risk).
-- Lead with Delivery → Traceability → Risk (in that order).
-- Use one credit-union–flavored caselet (ACH or Loan Funnel) as your anchor story.
-- Close with a question: “Which outcome metrics matter most for delivery success at GECU?”
-
-##📄 License
-- For interview/demo purposes only.
+## Governance
+- **Lineage**: Kanban export + release notes → weekly roll‑up.  
+- **Privacy**: No member PII; delivery metadata only.  
+- **Versioning**: Data and weekly PDF checked into repo.
