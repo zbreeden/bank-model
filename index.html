@@ -35,6 +35,14 @@
     .row > * { flex:1; }
     .copy { font-size:12px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      /* Demo timer */
+    .timer { position: sticky; top: 8px; z-index: 10; }
+    .timer-row { display:flex; gap:8px; align-items:center; justify-content:space-between; }
+    .timer-bar-wrap { height:6px; background:#1f2228; border-radius:999px; overflow:hidden; margin-top:8px; }
+    .timer-bar { height:100%; width:0%; background: var(--accent); transition: width .4s ease; }
+    [data-state="warn"] .timer-bar { background: var(--warn); }
+    [data-state="bad"] .timer-bar { background: var(--bad); }
+    .timer-ctrls { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
   </style>
   <script>
     // Lightweight analytics stub (safe even without GTM/GA)
@@ -92,6 +100,23 @@
         const orig = btn.textContent; btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent = orig, 1200);
       });
     }
+    // Demo timer (90s) utilities
+    let demoTimer=null, demoRemaining=0, demoTotal=0;
+    function startTimer(seconds){ demoTotal=seconds; demoRemaining=seconds; const el=document.getElementById('timer'); updateTimerUI(); el.style.display='block'; clearInterval(demoTimer); demoTimer=setInterval(tickTimer,1000); }
+    function tickTimer(){ demoRemaining=Math.max(0, demoRemaining-1); updateTimerUI(); if(demoRemaining===0){ clearInterval(demoTimer); cuePause(); } }
+    function updateTimerUI(){ const r=document.getElementById('timer-remaining'); const bar=document.getElementById('timer-bar'); if(!r||!bar) return; r.textContent=`${demoRemaining}s`; const pct=((demoTotal-demoRemaining)/demoTotal)*100; bar.style.width=pct+'%'; const container=document.getElementById('timer'); if(container){ container.setAttribute('data-state', (demoRemaining<=15)?'bad':(demoRemaining<=30?'warn':'ok')); } }
+    function pauseTimer(){ clearInterval(demoTimer); demoTimer=null; }
+    function resumeTimer(){ if(!demoTimer && demoRemaining>0){ demoTimer=setInterval(tickTimer,1000); } }
+    function addSeconds(n){ demoRemaining=Math.min(demoRemaining+n, demoTotal+n); demoTotal+=n; updateTimerUI(); }
+    function resetTimer(){ clearInterval(demoTimer); demoTimer=null; demoRemaining=0; demoTotal=0; const el=document.getElementById('timer'); if(el) el.style.display='none'; }
+    function cuePause(){ const cue=document.getElementById('timer-cue'); if(cue){ cue.style.display='inline'; } }
+
+    // Keyboard controls (private): T=start/resume 90s, P=pause, H=hide
+    window.addEventListener('keydown', (e)=>{
+      if(e.key==='t' || e.key==='T'){ if(!demoTimer && demoRemaining===0){ startTimer(90); } else { resumeTimer(); } }
+      if(e.key==='p' || e.key==='P'){ pauseTimer(); }
+      if(e.key==='h' || e.key==='H'){ resetTimer(); }
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
       // Wire inputs
@@ -116,6 +141,21 @@
       </div>
       <div>
         <a class="btn" href="https://zbreeden.github.io/FourTwentyAnalytics/">← Back to Hub</a>
+      </div>
+    </div>
+
+    <div id="timer" class="card timer" style="display:none;">
+      <div class="timer-row">
+        <strong>Demo timer</strong>
+        <span id="timer-remaining">90s</span>
+        <span id="timer-cue" class="muted" style="display:none;"> · Pause &amp; hand to Q&amp;A?</span>
+      </div>
+      <div class="timer-bar-wrap"><div id="timer-bar" class="timer-bar"></div></div>
+      <div class="timer-ctrls">
+        <button class="btn" type="button" onclick="pauseTimer()">Pause</button>
+        <button class="btn" type="button" onclick="resumeTimer()">Resume</button>
+        <button class="btn" type="button" onclick="addSeconds(30)">+30s</button>
+        <button class="btn" type="button" onclick="resetTimer()">Hide</button>
       </div>
     </div>
 
