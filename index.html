@@ -19,4 +19,127 @@
     .muted{color:var(--muted)}
     .btn{display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--fg);cursor:pointer}
     .btn:hover{border-color:var(--accent)}
-    .btn-cta{border-color:var(--accent);font-weight:
+    .btn-cta{border-color:var(--accent);font-weight:600}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:16px}
+    .grid{display:grid;gap:16px}
+    .flash{outline:2px solid var(--accent);border-radius:12px}
+
+    /* Splash overlay (mission intro) */
+    .splash{position:fixed;inset:0;background:rgba(12,13,15,.96);display:none;align-items:center;justify-content:center;z-index:9999}
+    .splash-card{max-width:760px;margin:24px;padding:28px;border-radius:18px;background:var(--card);border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,.4)}
+    .splash h2{margin:0 0 8px;font-size:clamp(22px,3vw,32px)}
+    .splash .mission{font-size:clamp(18px,2.2vw,24px);font-weight:600}
+    .splash .sub{color:var(--muted);font-size:.95rem}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  </style>
+  <script>
+    function go(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth',block:'start'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'), 900); }
+    function showSplash(){ const s=document.getElementById('splash'); if(s) s.style.display='flex'; }
+    function closeSplash(){ const s=document.getElementById('splash'); if(s) s.style.display='none'; }
+    function continueToElevator(){ closeSplash(); go('elevator'); }
+    window.addEventListener('DOMContentLoaded',()=>{
+      // If someone lands on #demo-start directly, keep that path working
+      if(location.hash==='#demo-start'){ go('demo-start'); }
+    });
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>The Bank</h1>
+        <div class="muted">Delivery heartbeat: WIP caps, lead/cycle time, throughput, defect escape.</div>
+      </div>
+      <div>
+        <a class="btn" href="https://zbreeden.github.io/FourTwentyAnalytics/">← Back to Hub</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Before we dive in:</strong> if you’d like to follow along, click <em>Start Demo</em>. I’ll keep this to <strong>60–120 seconds</strong> and then pause.</p>
+      <div class="grid">
+        <a class="btn btn-cta" href="#" onclick="showSplash();return false;">▶ Start Demo</a>
+        <div class="muted">Backup anchors: <a href="https://github.com/zbreeden/bank-model/blob/main/README.md#demo-start">README #demo-start</a></div>
+      </div>
+    </div>
+
+    <!-- Mission Splash -->
+    <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Mission overlay">
+      <div class="splash-card">
+        <h2>General Electric Credit Union</h2>
+        <p class="mission">“Improving the Quality of Financial Lives.”</p>
+        <p class="sub">Member‑owned, not‑for‑profit credit union rooted in Greater Cincinnati.</p>
+        <div class="row">
+          <button class="btn btn-cta" onclick="continueToElevator()">Continue → Elevator Pitch</button>
+          <button class="btn" onclick="closeSplash()">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo flow -->
+    <section id="demo-start">
+      <h2>Demo Start</h2>
+      <div class="card">
+        <p><strong>Agenda (≈5 min):</strong> 3‑min delivery snapshot → 2‑min <em>The Bank</em> demo → Q&amp;A.</p>
+        <p class="muted">Note: dashboard uses <strong>synthetic data</strong>; patterns mirror real workflows.</p>
+        <p><a class="btn" href="#elevator" onclick="go('elevator');return false;">Next → Elevator Pitch</a></p>
+      </div>
+    </section>
+
+    <section id="elevator">
+      <h2>Elevator Pitch</h2>
+      <div class="card">
+        <p><strong>BLUF:</strong> I stabilize delivery via <strong>WIP caps</strong>, <strong>lead/cycle time</strong>, <strong>throughput</strong>, and <strong>defect escape</strong>.</p>
+        <ul>
+          <li>When <strong>WIP &gt; cap</strong> for 3+ days, <em>lead time spikes</em> → stop‑starting, start‑finishing.</li>
+          <li>If <strong>Review</strong> is the longest wait → fix policy: clear <em>entry/exit</em>, fewer handoffs, smaller batches.</li>
+          <li><strong>QA harness</strong> (schema/null/dupe) before promote → rework drops without killing throughput.</li>
+        </ul>
+        <p><a class="btn" href="#delivery-toolkit" onclick="go('delivery-toolkit');return false;">Next → Delivery Toolkit Snapshot</a> <a class="btn" href="#demo-start">Back ↑</a></p>
+      </div>
+    </section>
+
+    <section id="delivery-toolkit">
+      <h2>Delivery Toolkit Snapshot</h2>
+      <div class="card">
+        <ul>
+          <li><strong>WIP caps</strong> to keep flow stable (stop‑starting, start‑finishing).</li>
+          <li><strong>Lead/cycle time</strong> visible and time‑boxed.</li>
+          <li><strong>Throughput</strong> tracked at steady cadence.</li>
+          <li><strong>Defect escape</strong> reduced via a lightweight <em>QA harness</em>.</li>
+        </ul>
+        <p><a class="btn" href="#bank-3-scene" onclick="go('bank-3-scene');return false;">Next → The Bank: 3‑Scene Demo</a> <a class="btn" href="#elevator">Back ↑</a></p>
+      </div>
+    </section>
+
+    <section id="bank-3-scene">
+      <h2>The Bank — 3‑Scene Demo</h2>
+      <div class="card">
+        <ol>
+          <li><strong>Heartbeat:</strong> WIP vs cap → if breached 3+ days, re‑prioritize.</li>
+          <li><strong>Bottleneck:</strong> Stage‑duration view → longest wait gets a policy fix.</li>
+          <li><strong>Quality:</strong> Defect escape / rework% → pre‑promote QA harness.</li>
+        </ol>
+        <p><a class="btn" href="#qa-wrap" onclick="go('qa-wrap');return false;">Next → Q&amp;A &amp; Wrap</a> <a class="btn" href="#delivery-toolkit">Back ↑</a></p>
+      </div>
+    </section>
+
+    <section id="qa-wrap">
+      <h2>Q&amp;A and Wrap</h2>
+      <div class="card">
+        <ul>
+          <li>90‑day success metrics?</li>
+          <li>Where does work stall today (intake, review, UAT)?</li>
+          <li>Toolchain &amp; request flow (SQL/PBI/Git)?</li>
+          <li>Relief valve when WIP &gt; cap?</li>
+          <li>Member‑impact tie‑back?</li>
+        </ul>
+        <p><strong>Pilot ask:</strong> “I can baseline your flow (WIP/lead‑time + QA gate) in one sprint.”</p>
+        <p><a class="btn" href="#demo-start">Back to Start ↑</a></p>
+      </div>
+    </section>
+
+    <p class="muted" style="margin-top:24px">© FourTwenty Analytics</p>
+  </div>
+</body>
+</html>
