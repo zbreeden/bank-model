@@ -101,7 +101,8 @@
       });
       // Auto-scroll if hash present
       if (location.hash === '#demo-start') { document.getElementById('demo-start').scrollIntoView({behavior:'smooth'}); }
-      if (location.hash === '#scenario') { document.getElementById('scenario').scrollIntoView({behavior:'smooth'}); }
+      const scen = document.getElementById('scenario'); if (scen) { scen.style.display='none'; }
+      if (location.hash === '#scenario' && scen) { scen.style.display='block'; scen.scrollIntoView({behavior:'smooth'}); }); }
       computeScenario();
     });
   </script>
@@ -164,13 +165,13 @@
           <li><strong>Quality:</strong> Defect escape / rework% → pre‑promote QA harness (schema/null/dupe checks).</li>
         </ol>
         <p class="muted">If the live dashboard lags, show static screenshots while it loads.</p>
-        <p><a class="btn" href="#scenario" onclick="track('next_scenario')">Next → Thinking Machine (What‑If)</a> <a class="btn" href="#delivery-toolkit">Back ↑</a></p>
+        <p><a class="btn" href="#qa-wrap" onclick="track('next_qa')">Next → Q&amp;A &amp; Wrap</a> <button class="btn" onclick="document.getElementById('scenario').style.display='block'; document.getElementById('scenario').scrollIntoView({behavior:'smooth'}); track('open_scenario');">Optional → Thinking Machine (What‑If)</button> <a class="btn" href="#delivery-toolkit">Back ↑</a></p>
       </div>
     </section>
 
     <!-- Thinking Machine / Scenario Explorer -->
     <section id="scenario">
-      <h2>Thinking Machine — What‑If Explorer</h2>
+      <h2>Optional — Thinking Machine (What‑If) Explorer</h2>
       <div class="card">
         <div class="grid grid-3">
           <div class="kpi"><span>Cap Status</span> <span id="breach-tag" class="tag">Within Cap</span></div>
