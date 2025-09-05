@@ -43,6 +43,8 @@
     [data-state="warn"] .timer-bar { background: var(--warn); }
     [data-state="bad"] .timer-bar { background: var(--bad); }
     .timer-ctrls { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
+      html { scroll-behavior: smooth; }
+    .flash { outline: 2px solid var(--accent); border-radius: 12px; }
   </style>
   <script>
     // Lightweight analytics stub (safe even without GTM/GA)
@@ -130,6 +132,8 @@
       if (location.hash === '#scenario' && scen) { scen.style.display='block'; scen.scrollIntoView({behavior:'smooth'}); }); }
       computeScenario();
     });
+      // Smooth jump + highlight helper
+    function go(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth', block:'start'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'), 1200); }
   </script>
 </head>
 <body>
@@ -163,7 +167,7 @@
     <div class="card">
       <p><strong>Before we dive in:</strong> if you’d like to follow along, please open this page and click <em>Start Demo</em> below. I’ll keep this to <strong>5 minutes</strong> and then pause.</p>
       <div class="grid grid-2">
-        <a class="btn btn-cta" href="#demo-start" onclick="track('demo_start_click')">▶ Start Demo</a>
+        <a class="btn btn-cta" href="#demo-start" onclick="track('demo_start_click'); go('demo-start'); return false;">▶ Start Demo</a>
         <div>
           <div class="muted">Alt links:</div>
           <div>GitHub README anchor → <a href="https://github.com/zbreeden/bank-model/blob/main/README.md#demo-start">#demo-start</a></div>
