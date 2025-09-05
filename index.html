@@ -24,42 +24,71 @@
     .grid{display:grid;gap:16px}
     .flash{outline:2px solid var(--accent);border-radius:12px}
 
-    /* Splash overlay (mission intro) */
-    .splash{position:fixed;inset:0;background:rgba(12,13,15,.96);display:none;align-items:center;justify-content:center;z-index:9999}
-    .splash-card{max-width:760px;margin:24px;padding:28px;border-radius:18px;background:var(--card);border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,.4)}
-    .splash h2{margin:0 0 8px;font-size:clamp(22px,3vw,32px)}
-    .splash .mission{font-size:clamp(18px,2.2vw,24px);font-weight:600}
-    .splash .sub{color:var(--muted);font-size:.95rem}
+    /* Overlays (splash + toolkit spotlight) */
+    .overlay{position:fixed;inset:0;background:rgba(12,13,15,.96);display:none;align-items:center;justify-content:center;z-index:9999}
+    .overlay-card{max-width:820px;margin:24px;padding:28px;border-radius:18px;background:var(--card);border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,.4)}
+    .overlay h2{margin:0 0 8px;font-size:clamp(22px,3vw,32px)}
+    .overlay .lead{font-size:clamp(18px,2.2vw,24px);font-weight:600}
+    .overlay .sub{color:var(--muted);font-size:.95rem}
     .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-    }
+    /* Toolkit list in spotlight */
+    .toolkit-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+    .toolkit-item{border:1px solid var(--border);border-radius:14px;padding:12px;background:rgba(255,255,255,.02)}
+    .toolkit-item b{display:block;margin-bottom:4px}
+
+    /* Quick "lights on" stage effect */
+    .theater{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, rgba(255,255,255,.06), rgba(0,0,0,.92) 60%);opacity:0;transition:opacity 160ms ease-out;z-index:9998}
+    .theater.show{opacity:1;animation:lightsUp 560ms ease-out forwards}
+    @keyframes lightsUp { from{opacity:.9} to{opacity:0} }
+
+    .glow{box-shadow:0 0 0 2px var(--accent) inset, 0 0 24px rgba(76,139,245,.45);transition:box-shadow 900ms ease}
   </style>
 
   <!-- Defer so DOM exists before handlers run -->
   <script defer>
-    // Smooth scroll + highlight; falls back to setting hash if target missing
+    // Smooth scroll + highlight; safe if target missing
     function _go(id) {
       const el = document.getElementById(id);
       if (!el) { location.hash = '#' + id; return; }
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      el.classList.add('flash');
-      setTimeout(()=> el.classList.remove('flash'), 900);
+      const card = el.querySelector('.card') || el;
+      card.classList.add('glow');
+      setTimeout(()=> card.classList.remove('glow'), 900);
     }
 
+    // Mission splash
     function _showSplash(){ const s = document.getElementById('splash'); if (s) s.style.display = 'flex'; }
     function _closeSplash(){ const s = document.getElementById('splash'); if (s) s.style.display = 'none'; }
     function _continueToElevator(){ _closeSplash(); _go('elevator'); }
 
-    // Expose for inline handlers (and older browsers)
-    window.go = _go;
-    window.showSplash = _showSplash;
-    window.closeSplash = _closeSplash;
-    window.continueToElevator = _continueToElevator;
+    // Toolkit spotlight (new)
+    function _showToolkit(){ const t = document.getElementById('toolkit'); if (t) t.style.display = 'flex'; }
+    function _closeToolkit(){ const t = document.getElementById('toolkit'); if (t) t.style.display = 'none'; }
+
+    // Theater "lights on" (new)
+    function _igniteAndGo(id){
+      const theater = document.getElementById('theater');
+      if (theater){ theater.classList.add('show'); setTimeout(()=> theater.classList.remove('show'), 620); }
+      _go(id);
+    }
+
+    function _continueToToolkit(){ _closeToolkit(); _igniteAndGo('delivery-toolkit'); }
+    function _skipToolkit(){ _closeToolkit(); _go('delivery-toolkit'); }
+
+    // Expose for inline handlers
+    window.go=_go;
+    window.showSplash=_showSplash;
+    window.closeSplash=_closeSplash;
+    window.continueToElevator=_continueToElevator;
+
+    window.showToolkit=_showToolkit;
+    window.closeToolkit=_closeToolkit;
+    window.continueToToolkit=_continueToToolkit;
+    window.skipToolkit=_skipToolkit;
+    window.igniteAndGo=_igniteAndGo;
 
     window.addEventListener('DOMContentLoaded', () => {
-      // If someone lands on #demo-start directly, keep that path working
       if (location.hash === '#demo-start') { _go('demo-start'); }
     });
   </script>
@@ -85,10 +114,10 @@
     </div>
 
     <!-- Mission Splash -->
-    <div id="splash" class="splash" role="dialog" aria-modal="true" aria-label="Mission overlay">
-      <div class="splash-card">
+    <div id="splash" class="overlay" role="dialog" aria-modal="true" aria-label="Mission overlay">
+      <div class="overlay-card">
         <h2>General Electric Credit Union</h2>
-        <p class="mission">“Improving the Quality of Financial Lives.”</p>
+        <p class="lead">“Improving the Quality of Financial Lives.”</p>
         <p class="sub">Member-owned, not-for-profit credit union rooted in Greater Cincinnati.</p>
         <div class="row">
           <button class="btn btn-cta" type="button" onclick="continueToElevator()">Continue → Elevator Pitch</button>
@@ -96,6 +125,27 @@
         </div>
       </div>
     </div>
+
+    <!-- Toolkit Spotlight (NEW) -->
+    <div id="toolkit" class="overlay" role="dialog" aria-modal="true" aria-label="Toolkit spotlight">
+      <div class="overlay-card">
+        <h2>Delivery Toolkit</h2>
+        <p class="lead">Four simple levers that keep flow predictable.</p>
+        <div class="toolkit-list">
+          <div class="toolkit-item"><b>📦 WIP caps</b>Limit in-flight to avoid long queues. Stop starting, start finishing.</div>
+          <div class="toolkit-item"><b>⏱️ Lead/Cycle time</b>Shorten end-to-end and stage waits; measure with timestamps.</div>
+          <div class="toolkit-item"><b>📈 Throughput</b>Steady completions per week reveal capacity and trends.</div>
+          <div class="toolkit-item"><b>🛡️ Defect escape</b>Light pre-promote harness trims rework and hotfixes.</div>
+        </div>
+        <div class="row">
+          <button class="btn btn-cta" type="button" onclick="continueToToolkit()">Ignite Dashboard →</button>
+          <button class="btn" type="button" onclick="skipToolkit()">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Theater overlay for "lights on" (NEW) -->
+    <div id="theater" class="theater" aria-hidden="true"></div>
 
     <!-- Demo flow -->
     <section id="demo-start" aria-labelledby="demo-start-h">
@@ -116,7 +166,11 @@
           <li>If <strong>Review</strong> is the longest wait → fix policy: clear <em>entry/exit</em>, fewer handoffs, smaller batches.</li>
           <li><strong>QA harness</strong> (schema/null/dupe) before promote → rework drops without killing throughput.</li>
         </ul>
-        <p><a class="btn" href="#delivery-toolkit" onclick="go('delivery-toolkit');return false;">Next → Delivery Toolkit Snapshot</a> <a class="btn" href="#demo-start" onclick="go('demo-start');return false;">Back ↑</a></p>
+        <!-- CHANGED: goes to Toolkit Spotlight instead of direct scroll -->
+        <p>
+          <button class="btn" type="button" onclick="showToolkit()">Next → Delivery Toolkit Snapshot</button>
+          <a class="btn" href="#demo-start" onclick="go('demo-start');return false;">Back ↑</a>
+        </p>
       </div>
     </section>
 
@@ -129,7 +183,11 @@
           <li><strong>Throughput</strong> tracked at steady cadence.</li>
           <li><strong>Defect escape</strong> reduced via a lightweight <em>QA harness</em>.</li>
         </ul>
-        <p><a class="btn" href="#bank-3-scene" onclick="go('bank-3-scene');return false;">Next → The Bank: 3-Scene Demo</a> <a class="btn" href="#elevator" onclick="go('elevator');return false;">Back ↑</a></p>
+        <p>
+          <!-- Optional: ignite again when moving to the 3-scene demo -->
+          <button class="btn" type="button" onclick="igniteAndGo('bank-3-scene')">Next → The Bank: 3-Scene Demo</button>
+          <a class="btn" href="#elevator" onclick="go('elevator');return false;">Back ↑</a>
+        </p>
       </div>
     </section>
 
