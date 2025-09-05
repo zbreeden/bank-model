@@ -24,9 +24,9 @@
     .grid{display:grid;gap:16px}
     .flash{outline:2px solid var(--accent);border-radius:12px}
 
-    /* Overlays (splash + toolkit spotlight) */
+    /* Overlays (splash, toolkit, dashboard) */
     .overlay{position:fixed;inset:0;background:rgba(12,13,15,.96);display:none;align-items:center;justify-content:center;z-index:9999}
-    .overlay-card{max-width:820px;margin:24px;padding:28px;border-radius:18px;background:var(--card);border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,.4)}
+    .overlay-card{max-width:980px;margin:24px;padding:28px;border-radius:18px;background:var(--card);border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,.4)}
     .overlay h2{margin:0 0 8px;font-size:clamp(22px,3vw,32px)}
     .overlay .lead{font-size:clamp(18px,2.2vw,24px);font-weight:600}
     .overlay .sub{color:var(--muted);font-size:.95rem}
@@ -37,15 +37,31 @@
     .toolkit-item{border:1px solid var(--border);border-radius:14px;padding:12px;background:rgba(255,255,255,.02)}
     .toolkit-item b{display:block;margin-bottom:4px}
 
+    /* Synth dashboard layout */
+    .dash-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px;margin:16px 0}
+    .kpi{border:1px solid var(--border);border-radius:14px;padding:12px;background:rgba(255,255,255,.02)}
+    .kpi .label{font-size:.85rem;color:var(--muted)}
+    .kpi .value{font-size:1.6rem;font-weight:700;margin:6px 0}
+    .kpi .subv{font-size:.85rem;color:var(--muted)}
+    .dash-rows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mini{padding:12px}
+    .bars{display:grid;gap:8px;margin-top:8px}
+    .bar{height:10px;background:linear-gradient(90deg,var(--accent),transparent);border-radius:6px}
+    .legend{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-top:6px}
+
+    /* Tiny sparkline */
+    .spark{display:block;width:100%;height:46px}
+    .spark path{fill:none;stroke:var(--accent);stroke-width:2}
+
     /* Quick "lights on" stage effect */
     .theater{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%, rgba(255,255,255,.06), rgba(0,0,0,.92) 60%);opacity:0;transition:opacity 160ms ease-out;z-index:9998}
     .theater.show{opacity:1;animation:lightsUp 560ms ease-out forwards}
     @keyframes lightsUp { from{opacity:.9} to{opacity:0} }
 
     .glow{box-shadow:0 0 0 2px var(--accent) inset, 0 0 24px rgba(76,139,245,.45);transition:box-shadow 900ms ease}
+    @media (max-width:860px){ .dash-grid{grid-template-columns:repeat(2,minmax(160px,1fr))} .dash-rows{grid-template-columns:1fr} }
   </style>
 
-  <!-- Defer so DOM exists before handlers run -->
   <script defer>
     // Smooth scroll + highlight; safe if target missing
     function _go(id) {
@@ -62,30 +78,53 @@
     function _closeSplash(){ const s = document.getElementById('splash'); if (s) s.style.display = 'none'; }
     function _continueToElevator(){ _closeSplash(); _go('elevator'); }
 
-    // Toolkit spotlight (new)
+    // Toolkit spotlight
     function _showToolkit(){ const t = document.getElementById('toolkit'); if (t) t.style.display = 'flex'; }
     function _closeToolkit(){ const t = document.getElementById('toolkit'); if (t) t.style.display = 'none'; }
 
-    // Theater "lights on" (new)
+    // Synth dashboard (NEW)
+    function _showDash(){
+      const d = document.getElementById('dash'); if (!d) return;
+      // (Optional) light random wiggle to feel alive
+      try {
+        const r = (min,max)=> (Math.random()*(max-min)+min);
+        document.getElementById('kpi-wip').querySelector('.value').textContent = `${Math.round(r(22,28))} / 24`;
+        document.getElementById('kpi-lead').querySelector('.value').textContent = `${r(2.4,3.4).toFixed(1)} days`;
+        document.getElementById('kpi-throughput').querySelector('.value').textContent = `${Math.round(r(10,14))}/wk`;
+        document.getElementById('kpi-escape').querySelector('.value').textContent = `${r(1.6,2.4).toFixed(1)}%`;
+        // Update bars (stage durations)
+        const stages=[['Intake',0.8],['Review',0.34],['UAT',0.22],['Deploy',0.12]];
+        const barWrap=document.getElementById('stage-bars'); barWrap.innerHTML='';
+        stages.forEach(([name,frac])=>{
+          const row=document.createElement('div');
+          row.innerHTML=`<div class="legend"><span>${name}</span><span>${(frac*10).toFixed(1)}d</span></div>
+            <div class="bar" style="width:${Math.max(8,frac*100)}%"></div>`;
+          barWrap.appendChild(row);
+        });
+        // Update sparkline path
+        const pts = Array.from({length:12},(_,i)=>({x: i*28+6, y: 36 - (Math.sin(i/2)+1)*14 - (i>7?4:0)}));
+        const dPath = 'M '+pts.map(p=>`${p.x},${p.y}`).join(' L ');
+        document.getElementById('spark-path').setAttribute('d', dPath);
+      } catch(e){}
+      d.style.display='flex';
+    }
+    function _closeDash(){ const d = document.getElementById('dash'); if (d) d.style.display='none'; }
+
+    // Theater "lights on"
     function _igniteAndGo(id){
       const theater = document.getElementById('theater');
       if (theater){ theater.classList.add('show'); setTimeout(()=> theater.classList.remove('show'), 620); }
       _go(id);
     }
 
-    function _continueToToolkit(){ _closeToolkit(); _igniteAndGo('delivery-toolkit'); }
-    function _skipToolkit(){ _closeToolkit(); _go('delivery-toolkit'); }
+    function _continueFromDash(){ _closeDash(); _igniteAndGo('delivery-toolkit'); }
+    function _skipDash(){ _closeDash(); _go('delivery-toolkit'); }
 
     // Expose for inline handlers
     window.go=_go;
-    window.showSplash=_showSplash;
-    window.closeSplash=_closeSplash;
-    window.continueToElevator=_continueToElevator;
-
-    window.showToolkit=_showToolkit;
-    window.closeToolkit=_closeToolkit;
-    window.continueToToolkit=_continueToToolkit;
-    window.skipToolkit=_skipToolkit;
+    window.showSplash=_showSplash; window.closeSplash=_closeSplash; window.continueToElevator=_continueToElevator;
+    window.showToolkit=_showToolkit; window.closeToolkit=_closeToolkit;
+    window.showDash=_showDash; window.closeDash=_closeDash; window.continueFromDash=_continueFromDash; window.skipDash=_skipDash;
     window.igniteAndGo=_igniteAndGo;
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -126,7 +165,7 @@
       </div>
     </div>
 
-    <!-- Toolkit Spotlight (NEW) -->
+    <!-- Toolkit Spotlight -->
     <div id="toolkit" class="overlay" role="dialog" aria-modal="true" aria-label="Toolkit spotlight">
       <div class="overlay-card">
         <h2>Delivery Toolkit</h2>
@@ -138,13 +177,66 @@
           <div class="toolkit-item"><b>🛡️ Defect escape</b>Light pre-promote harness trims rework and hotfixes.</div>
         </div>
         <div class="row">
-          <button class="btn btn-cta" type="button" onclick="continueToToolkit()">Ignite Dashboard →</button>
-          <button class="btn" type="button" onclick="skipToolkit()">Skip</button>
+          <!-- CHANGED: opens synthesized dashboard first -->
+          <button class="btn btn-cta" type="button" onclick="closeToolkit();showDash()">Ignite Dashboard →</button>
+          <button class="btn" type="button" onclick="closeToolkit();skipDash()">Skip</button>
         </div>
       </div>
     </div>
 
-    <!-- Theater overlay for "lights on" (NEW) -->
+    <!-- Synthesized Dashboard (NEW) -->
+    <div id="dash" class="overlay" role="dialog" aria-modal="true" aria-label="Dashboard preview">
+      <div class="overlay-card">
+        <h2>Delivery Dashboard (Synthetic)</h2>
+        <p class="sub">Illustrative metrics — patterns mirror real flows. No production data.</p>
+
+        <div class="dash-grid">
+          <div id="kpi-wip" class="kpi">
+            <div class="label">WIP vs Cap</div>
+            <div class="value">26 / 24</div>
+            <div class="subv">Under for 4 of last 7 days</div>
+          </div>
+          <div id="kpi-lead" class="kpi">
+            <div class="label">Lead Time (end-to-end)</div>
+            <div class="value">3.1 days</div>
+            <div class="subv">Target ≤ 2.5d</div>
+          </div>
+          <div id="kpi-throughput" class="kpi">
+            <div class="label">Throughput</div>
+            <div class="value">12/wk</div>
+            <div class="subv">Stable (±1)</div>
+          </div>
+          <div id="kpi-escape" class="kpi">
+            <div class="label">Defect Escape</div>
+            <div class="value">2.0%</div>
+            <div class="subv">Pre-promote harness live</div>
+          </div>
+        </div>
+
+        <div class="dash-rows">
+          <div class="card mini">
+            <b>Stage Duration (days)</b>
+            <div id="stage-bars" class="bars">
+              <!-- populated by JS -->
+            </div>
+          </div>
+          <div class="card mini">
+            <b>WIP vs Cap (last 12 points)</b>
+            <svg class="spark" viewBox="0 0 330 46" preserveAspectRatio="none" aria-label="WIP sparkline">
+              <path id="spark-path" d="M 6,36 34,30 62,28 90,24 118,26 146,22 174,20 202,22 230,26 258,28 286,30 314,32"></path>
+            </svg>
+            <div class="legend"><span>WIP</span><span>Cap: 24</span></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-cta" type="button" onclick="continueFromDash()">Continue → Delivery Toolkit</button>
+          <button class="btn" type="button" onclick="skipDash()">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Theater overlay for "lights on" -->
     <div id="theater" class="theater" aria-hidden="true"></div>
 
     <!-- Demo flow -->
@@ -166,8 +258,8 @@
           <li>If <strong>Review</strong> is the longest wait → fix policy: clear <em>entry/exit</em>, fewer handoffs, smaller batches.</li>
           <li><strong>QA harness</strong> (schema/null/dupe) before promote → rework drops without killing throughput.</li>
         </ul>
-        <!-- CHANGED: goes to Toolkit Spotlight instead of direct scroll -->
         <p>
+          <!-- now opens Toolkit spotlight, then the Dashboard overlay -->
           <button class="btn" type="button" onclick="showToolkit()">Next → Delivery Toolkit Snapshot</button>
           <a class="btn" href="#demo-start" onclick="go('demo-start');return false;">Back ↑</a>
         </p>
@@ -184,7 +276,6 @@
           <li><strong>Defect escape</strong> reduced via a lightweight <em>QA harness</em>.</li>
         </ul>
         <p>
-          <!-- Optional: ignite again when moving to the 3-scene demo -->
           <button class="btn" type="button" onclick="igniteAndGo('bank-3-scene')">Next → The Bank: 3-Scene Demo</button>
           <a class="btn" href="#elevator" onclick="go('elevator');return false;">Back ↑</a>
         </p>
