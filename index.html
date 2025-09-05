@@ -31,15 +31,36 @@
     .splash .mission{font-size:clamp(18px,2.2vw,24px);font-weight:600}
     .splash .sub{color:var(--muted);font-size:.95rem}
     .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
   </style>
-  <script>
-    function go(id){ const el=document.getElementById(id); if(!el) return; el.scrollIntoView({behavior:'smooth',block:'start'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'), 900); }
-    function showSplash(){ const s=document.getElementById('splash'); if(s) s.style.display='flex'; }
-    function closeSplash(){ const s=document.getElementById('splash'); if(s) s.style.display='none'; }
-    function continueToElevator(){ closeSplash(); go('elevator'); }
-    window.addEventListener('DOMContentLoaded',()=>{
+
+  <!-- Defer so DOM exists before handlers run -->
+  <script defer>
+    // Smooth scroll + highlight; falls back to setting hash if target missing
+    function _go(id) {
+      const el = document.getElementById(id);
+      if (!el) { location.hash = '#' + id; return; }
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.classList.add('flash');
+      setTimeout(()=> el.classList.remove('flash'), 900);
+    }
+
+    function _showSplash(){ const s = document.getElementById('splash'); if (s) s.style.display = 'flex'; }
+    function _closeSplash(){ const s = document.getElementById('splash'); if (s) s.style.display = 'none'; }
+    function _continueToElevator(){ _closeSplash(); _go('elevator'); }
+
+    // Expose for inline handlers (and older browsers)
+    window.go = _go;
+    window.showSplash = _showSplash;
+    window.closeSplash = _closeSplash;
+    window.continueToElevator = _continueToElevator;
+
+    window.addEventListener('DOMContentLoaded', () => {
       // If someone lands on #demo-start directly, keep that path working
-      if(location.hash==='#demo-start'){ go('demo-start'); }
+      if (location.hash === '#demo-start') { _go('demo-start'); }
     });
   </script>
 </head>
@@ -58,7 +79,7 @@
     <div class="card">
       <p><strong>Before we dive in:</strong> if you’d like to follow along, click <em>Start Demo</em>. I’ll keep this to <strong>60–120 seconds</strong> and then pause.</p>
       <div class="grid">
-        <a class="btn btn-cta" href="#" onclick="showSplash();return false;">▶ Start Demo</a>
+        <button class="btn btn-cta" type="button" onclick="showSplash()">▶ Start Demo</button>
         <div class="muted">Backup anchors: <a href="https://github.com/zbreeden/bank-model/blob/main/README.md#demo-start">README #demo-start</a></div>
       </div>
     </div>
@@ -68,74 +89,74 @@
       <div class="splash-card">
         <h2>General Electric Credit Union</h2>
         <p class="mission">“Improving the Quality of Financial Lives.”</p>
-        <p class="sub">Member‑owned, not‑for‑profit credit union rooted in Greater Cincinnati.</p>
+        <p class="sub">Member-owned, not-for-profit credit union rooted in Greater Cincinnati.</p>
         <div class="row">
-          <button class="btn btn-cta" onclick="continueToElevator()">Continue → Elevator Pitch</button>
-          <button class="btn" onclick="closeSplash()">Skip</button>
+          <button class="btn btn-cta" type="button" onclick="continueToElevator()">Continue → Elevator Pitch</button>
+          <button class="btn" type="button" onclick="closeSplash()">Skip</button>
         </div>
       </div>
     </div>
 
     <!-- Demo flow -->
-    <section id="demo-start">
-      <h2>Demo Start</h2>
+    <section id="demo-start" aria-labelledby="demo-start-h">
+      <h2 id="demo-start-h">Demo Start</h2>
       <div class="card">
-        <p><strong>Agenda (≈5 min):</strong> 3‑min delivery snapshot → 2‑min <em>The Bank</em> demo → Q&amp;A.</p>
+        <p><strong>Agenda (≈5 min):</strong> 3-min delivery snapshot → 2-min <em>The Bank</em> demo → Q&amp;A.</p>
         <p class="muted">Note: dashboard uses <strong>synthetic data</strong>; patterns mirror real workflows.</p>
         <p><a class="btn" href="#elevator" onclick="go('elevator');return false;">Next → Elevator Pitch</a></p>
       </div>
     </section>
 
-    <section id="elevator">
-      <h2>Elevator Pitch</h2>
+    <section id="elevator" aria-labelledby="elevator-h">
+      <h2 id="elevator-h">Elevator Pitch</h2>
       <div class="card">
         <p><strong>BLUF:</strong> I stabilize delivery via <strong>WIP caps</strong>, <strong>lead/cycle time</strong>, <strong>throughput</strong>, and <strong>defect escape</strong>.</p>
         <ul>
-          <li>When <strong>WIP &gt; cap</strong> for 3+ days, <em>lead time spikes</em> → stop‑starting, start‑finishing.</li>
+          <li>When <strong>WIP &gt; cap</strong> for 3+ days, <em>lead time spikes</em> → stop-starting, start-finishing.</li>
           <li>If <strong>Review</strong> is the longest wait → fix policy: clear <em>entry/exit</em>, fewer handoffs, smaller batches.</li>
           <li><strong>QA harness</strong> (schema/null/dupe) before promote → rework drops without killing throughput.</li>
         </ul>
-        <p><a class="btn" href="#delivery-toolkit" onclick="go('delivery-toolkit');return false;">Next → Delivery Toolkit Snapshot</a> <a class="btn" href="#demo-start">Back ↑</a></p>
+        <p><a class="btn" href="#delivery-toolkit" onclick="go('delivery-toolkit');return false;">Next → Delivery Toolkit Snapshot</a> <a class="btn" href="#demo-start" onclick="go('demo-start');return false;">Back ↑</a></p>
       </div>
     </section>
 
-    <section id="delivery-toolkit">
-      <h2>Delivery Toolkit Snapshot</h2>
+    <section id="delivery-toolkit" aria-labelledby="delivery-toolkit-h">
+      <h2 id="delivery-toolkit-h">Delivery Toolkit Snapshot</h2>
       <div class="card">
         <ul>
-          <li><strong>WIP caps</strong> to keep flow stable (stop‑starting, start‑finishing).</li>
-          <li><strong>Lead/cycle time</strong> visible and time‑boxed.</li>
+          <li><strong>WIP caps</strong> to keep flow stable (stop-starting, start-finishing).</li>
+          <li><strong>Lead/cycle time</strong> visible and time-boxed.</li>
           <li><strong>Throughput</strong> tracked at steady cadence.</li>
           <li><strong>Defect escape</strong> reduced via a lightweight <em>QA harness</em>.</li>
         </ul>
-        <p><a class="btn" href="#bank-3-scene" onclick="go('bank-3-scene');return false;">Next → The Bank: 3‑Scene Demo</a> <a class="btn" href="#elevator">Back ↑</a></p>
+        <p><a class="btn" href="#bank-3-scene" onclick="go('bank-3-scene');return false;">Next → The Bank: 3-Scene Demo</a> <a class="btn" href="#elevator" onclick="go('elevator');return false;">Back ↑</a></p>
       </div>
     </section>
 
-    <section id="bank-3-scene">
-      <h2>The Bank — 3‑Scene Demo</h2>
+    <section id="bank-3-scene" aria-labelledby="bank-3-scene-h">
+      <h2 id="bank-3-scene-h">The Bank — 3-Scene Demo</h2>
       <div class="card">
         <ol>
-          <li><strong>Heartbeat:</strong> WIP vs cap → if breached 3+ days, re‑prioritize.</li>
-          <li><strong>Bottleneck:</strong> Stage‑duration view → longest wait gets a policy fix.</li>
-          <li><strong>Quality:</strong> Defect escape / rework% → pre‑promote QA harness.</li>
+          <li><strong>Heartbeat:</strong> WIP vs cap → if breached 3+ days, re-prioritize.</li>
+          <li><strong>Bottleneck:</strong> Stage-duration view → longest wait gets a policy fix.</li>
+          <li><strong>Quality:</strong> Defect escape / rework% → pre-promote QA harness.</li>
         </ol>
-        <p><a class="btn" href="#qa-wrap" onclick="go('qa-wrap');return false;">Next → Q&amp;A &amp; Wrap</a> <a class="btn" href="#delivery-toolkit">Back ↑</a></p>
+        <p><a class="btn" href="#qa-wrap" onclick="go('qa-wrap');return false;">Next → Q&amp;A &amp; Wrap</a> <a class="btn" href="#delivery-toolkit" onclick="go('delivery-toolkit');return false;">Back ↑</a></p>
       </div>
     </section>
 
-    <section id="qa-wrap">
-      <h2>Q&amp;A and Wrap</h2>
+    <section id="qa-wrap" aria-labelledby="qa-wrap-h">
+      <h2 id="qa-wrap-h">Q&amp;A and Wrap</h2>
       <div class="card">
         <ul>
-          <li>90‑day success metrics?</li>
+          <li>90-day success metrics?</li>
           <li>Where does work stall today (intake, review, UAT)?</li>
           <li>Toolchain &amp; request flow (SQL/PBI/Git)?</li>
           <li>Relief valve when WIP &gt; cap?</li>
-          <li>Member‑impact tie‑back?</li>
+          <li>Member-impact tie-back?</li>
         </ul>
-        <p><strong>Pilot ask:</strong> “I can baseline your flow (WIP/lead‑time + QA gate) in one sprint.”</p>
-        <p><a class="btn" href="#demo-start">Back to Start ↑</a></p>
+        <p><strong>Pilot ask:</strong> “I can baseline your flow (WIP/lead-time + QA gate) in one sprint.”</p>
+        <p><a class="btn" href="#demo-start" onclick="go('demo-start');return false;">Back to Start ↑</a></p>
       </div>
     </section>
 
