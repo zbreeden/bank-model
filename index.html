@@ -3,254 +3,240 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Bank — Executive Delivery Scorecard</title>
-  <meta name="description" content="A lightweight, executive-ready delivery scorecard for GECU built on flow signals: WIP, Throughput, Lead/Cycle Time, On‑Time %, Defect Escape, Aging WIP." />
+  <title>The Bank — Delivery Dashboard (Demo + Scenario Explorer)</title>
+  <meta name="description" content="The Bank: delivery metrics (WIP, lead/cycle time, throughput, defect escape) with a built‑in scenario explorer for exec‑friendly what‑ifs." />
   <meta name="color-scheme" content="light dark" />
   <style>
-    :root { --fg:#111; --bg:#fff; --muted:#6b7280; --card:#f8fafc; --border:#e5e7eb; }
-    @media (prefers-color-scheme: dark){ :root{ --fg:#e5e7eb; --bg:#0b0f14; --muted:#9aa3af; --card:#121820; --border:#223042; } }
-    *{ box-sizing:border-box; }
-    body{ margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--fg); background:var(--bg); }
-    header{ padding:24px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; backdrop-filter:saturate(180%) blur(6px); background:color-mix(in oklab, var(--bg) 85%, transparent); z-index:20; }
-    .wrap{ max-width:1100px; margin:0 auto; }
-    h1{ font-size:22px; margin:0 0 4px; }
-    .sub{ color:var(--muted); font-size:14px; }
-    .grid{ display:grid; grid-template-columns: repeat(6, 1fr); gap:12px; }
-    @media (max-width:1000px){ .grid{ grid-template-columns: repeat(3,1fr);} }
-    @media (max-width:640px){ .grid{ grid-template-columns: repeat(2,1fr);} }
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; }
-    .kpi h3{ font-size:12px; margin:0; color:var(--muted);} 
-    .kpi .v{ font-size:24px; font-weight:700; margin-top:6px; }
-    .kpi .s{ font-size:12px; color:var(--muted); }
-    section{ padding:16px; }
-    h2{ font-size:16px; margin:0 0 12px; }
-    canvas{ width:100% !important; height:360px !important; }
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
-    @media (max-width:960px){ .row{ grid-template-columns:1fr; }}
-    .table{ width:100%; border-collapse:collapse; font-size:14px; }
-    .table th,.table td{ padding:8px 10px; border-top:1px solid var(--border);} 
-    .muted{ color:var(--muted); }
-    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; }
-    footer{ padding:24px 16px; color:var(--muted); font-size:12px; }
-    .ok{ color:#16a34a; } .warn{ color:#eab308; } .risk{ color:#dc2626; }
+    :root {
+      --bg: #0c0d0f; --fg:#e9eaed; --card:#15171a; --muted:#9aa0a6; --border:#2a2d33; --accent:#4c8bf5; --good:#4caf50; --warn:#f5a14c; --bad:#e55353;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height:1.5; color:var(--fg); background:var(--bg); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 24px; }
+    .top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    h1 { font-size: clamp(24px, 3vw, 36px); margin: 8px 0 0; }
+    .muted { color: var(--muted); }
+    .btn { display:inline-block; padding:10px 16px; border-radius:12px; border:1px solid var(--border); background:var(--card); color:var(--fg); text-decoration:none; cursor:pointer; }
+    .btn:hover { border-color: var(--accent); }
+    .btn-cta { border-color: var(--accent); font-weight:600; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; margin-top:16px; }
+    .grid { display:grid; gap:16px; grid-template-columns:1fr; }
+    @media (min-width: 760px) { .grid-2 { grid-template-columns: 1fr 1fr; } .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
+    .sep { height:1px; background:var(--border); margin:16px 0; }
+    .kpi { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:rgba(255,255,255,0.02); }
+    .kpi strong { font-size:1.1rem; }
+    .tag { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,0.04); }
+    .tag.good{ border-color:var(--good); color:var(--good);} .tag.warn{ border-color:var(--warn); color:var(--warn);} .tag.bad{ border-color:var(--bad); color:var(--bad);} 
+    label { display:block; font-weight:600; margin-top:10px; }
+    input[type="range"], input[type="number"] { width:100%; }
+    .row { display:flex; gap:12px; align-items:center; }
+    .row > * { flex:1; }
+    .copy { font-size:12px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   </style>
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+  <script>
+    // Lightweight analytics stub (safe even without GTM/GA)
+    window.dataLayer = window.dataLayer || [];
+    function track(event, params={}){ window.dataLayer.push({event, ts: Date.now(), ...params}); }
+
+    // Scenario math helpers (exec-friendly, transparent)
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+    function pct(delta, base){ return base === 0 ? 0 : (delta/base)*100; }
+
+    function fmt(n){ return (Math.round(n*10)/10).toFixed(1); }
+
+    function computeScenario(){
+      const wip = parseFloat(document.getElementById('wip').value);
+      const cap = parseFloat(document.getElementById('cap').value);
+      const th = parseFloat(document.getElementById('throughput').value); // items/day
+      const handoffs = parseInt(document.getElementById('handoffs').value,10);
+      const qa = document.getElementById('qa').checked;
+
+      const safeTh = Math.max(0.1, th); // avoid div-by-zero
+      const leadNow = wip / safeTh; // Little's Law: W = L/λ => W (days) = WIP / throughput
+      const wipCapped = Math.min(wip, cap);
+      const leadCapped = wipCapped / safeTh;
+      const leadDeltaDays = leadNow - leadCapped;
+      const leadDeltaPct = pct(leadDeltaDays, leadNow);
+
+      // Toy rework risk model: base 5% + 4% per extra handoff beyond 1; QA harness reduces by 30% relative
+      const baseRisk = 0.05 + Math.max(0, handoffs-1) * 0.04;
+      const risk = qa ? baseRisk * 0.7 : baseRisk;
+
+      // Status tags
+      const breach = wip > cap;
+
+      // Update UI
+      document.getElementById('lead-now').textContent = fmt(leadNow) + ' days';
+      document.getElementById('lead-cap').textContent = fmt(leadCapped) + ' days';
+      document.getElementById('lead-improve').textContent = (leadDeltaDays>0?'-':'') + fmt(Math.abs(leadDeltaDays)) + ' days (' + (leadDeltaPct>0?'-':'+') + fmt(Math.abs(leadDeltaPct)) + '%)';
+      document.getElementById('risk').textContent = Math.round(risk*100) + '%';
+
+      const tag = document.getElementById('breach-tag');
+      tag.textContent = breach ? 'Cap Breached' : 'Within Cap';
+      tag.className = 'tag ' + (breach ? 'bad' : 'good');
+
+      // BLUF string for copy/paste into chat/email
+      const bluf = `At WIP ${wip} and throughput ${fmt(safeTh)}/day, lead time ≈ ${fmt(leadNow)}d. Capping WIP at ${cap} yields ≈ ${fmt(leadCapped)}d (${leadDeltaDays>0?'-':'+'}${fmt(Math.abs(leadDeltaPct))}%). With ${handoffs} handoffs${qa? ' + QA harness':''}, estimated rework risk ≈ ${Math.round(risk*100)}%.`;
+      document.getElementById('bluf').textContent = bluf;
+
+      track('scenario_update', {wip, cap, throughput:safeTh, handoffs, qa, lead_now:leadNow, lead_capped:leadCapped, breach});
+    }
+
+    function copyBLUF(){
+      const text = document.getElementById('bluf').textContent;
+      navigator.clipboard.writeText(text).then(()=>{
+        const btn = document.getElementById('copyBtn');
+        const orig = btn.textContent; btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent = orig, 1200);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Wire inputs
+      ['wip','cap','throughput','handoffs','qa'].forEach(id => {
+        document.getElementById(id).addEventListener('input', computeScenario);
+        document.getElementById(id).addEventListener('change', computeScenario);
+      });
+      // Auto-scroll if hash present
+      if (location.hash === '#demo-start') { document.getElementById('demo-start').scrollIntoView({behavior:'smooth'}); }
+      if (location.hash === '#scenario') { document.getElementById('scenario').scrollIntoView({behavior:'smooth'}); }
+      computeScenario();
+    });
+  </script>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>🏦 The Bank — Executive Delivery Scorecard</h1>
-      <div class="sub">Flow signals for predictable delivery · <span id="updated" class="muted">loading…</span></div>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>The Bank</h1>
+        <div class="muted">Delivery heartbeat with exec‑friendly what‑ifs: WIP, lead/cycle time, throughput, defect escape.</div>
+      </div>
+      <div>
+        <a class="btn" href="https://zbreeden.github.io/FourTwentyAnalytics/">← Back to Hub</a>
+      </div>
     </div>
-  </header>
 
-  <main class="wrap">
-    <!-- KPI GRID -->
-    <section>
-      <div class="grid" id="kpis">
-        <!-- Populated by JS -->
+    <!-- Hero / On‑ramp -->
+    <div class="card">
+      <p><strong>Before we dive in:</strong> if you’d like to follow along, please open this page and click <em>Start Demo</em> below. I’ll keep this to <strong>5 minutes</strong> and then pause.</p>
+      <div class="grid grid-2">
+        <a class="btn btn-cta" href="#demo-start" onclick="track('demo_start_click')">▶ Start Demo</a>
+        <div>
+          <div class="muted">Alt links:</div>
+          <div>GitHub README anchor → <a href="https://github.com/zbreeden/bank-model/blob/main/README.md#demo-start">#demo-start</a></div>
+          <div>Power BI (optional viewer) → <a href="https://app.powerbi.com/reportEmbed?reportId=5ccf2c2f-2272-4165-a6a3-3d5a528a4be7&autoAuth=true&ctid=dc1332eb-e1d9-4c3f-8456">open</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo sequence -->
+    <section id="demo-start">
+      <h2>Demo Start</h2>
+      <div class="card">
+        <p><strong>Agenda (5 min):</strong> 3‑min delivery snapshot → 2‑min <em>The Bank</em> demo → Q&amp;A.</p>
+        <p class="muted">Note: dashboard uses <strong>synthetic data</strong>; patterns mirror real workflows.</p>
+        <p><a class="btn" href="#delivery-toolkit" onclick="track('next_delivery_toolkit')">Next → Delivery Toolkit Snapshot</a></p>
       </div>
     </section>
 
-    <!-- CHARTS -->
-    <section class="row">
+    <section id="delivery-toolkit">
+      <h2>Delivery Toolkit Snapshot</h2>
       <div class="card">
-        <h2>Inflow vs Throughput vs WIP (last 12 weeks)</h2>
-        <canvas id="chartFlow"></canvas>
-      </div>
-      <div class="card">
-        <h2>Lead Time (days) & On‑Time % (last 12 weeks)</h2>
-        <canvas id="chartQuality"></canvas>
-      </div>
-    </section>
-
-    <!-- CAPACITY vs DEMAND + RISKS -->
-    <section class="row">
-      <div class="card">
-        <h2>Capacity vs Demand — This Week</h2>
-        <table class="table" id="capTable">
-          <thead><tr><th>Capacity (slots)</th><th>Demand (new requests)</th><th>Load vs Capacity</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p class="muted" style="margin-top:8px">Goal: Throughput ≥ Demand · Keep WIP under cap.</p>
-      </div>
-      <div class="card">
-        <h2>Risks & Actions — This Week</h2>
-        <ul id="risks" class="muted" style="margin:0; padding-left:18px"></ul>
+        <ul>
+          <li><strong>WIP caps</strong> to keep flow stable (stop‑starting, start‑finishing).</li>
+          <li><strong>Lead/cycle time</strong> visible and time‑boxed.</li>
+          <li><strong>Throughput</strong> tracked at steady cadence.</li>
+          <li><strong>Defect escape</strong> reduced via pre‑promote <em>QA harness</em>.</li>
+          <li>Smaller batches, fewer handoffs, clear <em>entry/exit</em> criteria.</li>
+        </ul>
+        <p><a class="btn" href="#bank-3-scene" onclick="track('next_bank_3scene')">Next → The Bank: 3‑Scene Demo</a> <a class="btn" href="#demo-start">Back ↑</a></p>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Definitions</h2>
-      <p class="muted">WIP — items in progress · Throughput — finished/week · Lead Time — request→done (median days) · On‑Time % — delivered by commit date · Defect Escape — prod‑found/total · Aging WIP — in‑progress items &gt; 10 days.</p>
-      <p class="muted">Audit notes: delivery metadata only (no member PII); weekly CSV + PDF recommended.</p>
+    <section id="bank-3-scene">
+      <h2>The Bank — 3‑Scene Demo</h2>
+      <div class="card">
+        <ol>
+          <li><strong>Heartbeat:</strong> WIP vs cap → if breached 3+ days, re‑prioritize.</li>
+          <li><strong>Bottleneck:</strong> Stage‑duration view → longest wait gets a policy fix (entry/exit, fewer handoffs, smaller batches).</li>
+          <li><strong>Quality:</strong> Defect escape / rework% → pre‑promote QA harness (schema/null/dupe checks).</li>
+        </ol>
+        <p class="muted">If the live dashboard lags, show static screenshots while it loads.</p>
+        <p><a class="btn" href="#scenario" onclick="track('next_scenario')">Next → Thinking Machine (What‑If)</a> <a class="btn" href="#delivery-toolkit">Back ↑</a></p>
+      </div>
     </section>
-  </main>
 
-  <footer class="wrap">Made for GECU panel preview. Drop <code>data/bank_scorecard.csv</code> into this repo or point to a raw URL in the config.</footer>
+    <!-- Thinking Machine / Scenario Explorer -->
+    <section id="scenario">
+      <h2>Thinking Machine — What‑If Explorer</h2>
+      <div class="card">
+        <div class="grid grid-3">
+          <div class="kpi"><span>Cap Status</span> <span id="breach-tag" class="tag">Within Cap</span></div>
+          <div class="kpi"><span>Lead Time (now)</span> <strong id="lead-now">—</strong></div>
+          <div class="kpi"><span>Lead Time (at cap)</span> <strong id="lead-cap">—</strong></div>
+        </div>
+        <div class="kpi" style="margin-top:12px;"><span>Improvement</span> <strong id="lead-improve">—</strong></div>
 
-  <script>
-  // ────────────────────────────────────────────────────────────────────────────
-  // CONFIG — set these to point at your GitHub repo CSV
-  // Option A: Use local CSV in /data (works on GitHub Pages when file is committed)
-  const USE_LOCAL = true;                 // set false to fetch from another repo
-  const LOCAL_PATH = 'data/bank_scorecard_sample.csv';
+        <div class="sep"></div>
 
-  // Option B: Raw GitHub CSV (if hosted in another repo)
-  const GITHUB = { owner: 'zbreeden', repo: 'bank-model', branch: 'main', path: 'data/bank_scorecard.csv' };
-  const RAW_URL = `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${GITHUB.path}`;
+        <div class="grid grid-2">
+          <div>
+            <label for="wip">Current WIP (items)</label>
+            <input id="wip" type="range" min="1" max="30" value="8" />
+            <div class="row"><input type="number" min="1" max="30" value="8" oninput="document.getElementById('wip').value=this.value; computeScenario();" /></div>
+          </div>
+          <div>
+            <label for="cap">WIP Cap (items)</label>
+            <input id="cap" type="range" min="1" max="20" value="5" />
+            <div class="row"><input type="number" min="1" max="20" value="5" oninput="document.getElementById('cap').value=this.value; computeScenario();" /></div>
+          </div>
+        </div>
 
-  // Domain parameters
-  const WIP_CAP = 20; // team policy example — show visually on chart
+        <div class="grid grid-2">
+          <div>
+            <label for="throughput">Throughput (items/day)</label>
+            <input id="throughput" type="range" min="0.1" max="10" step="0.1" value="2" />
+            <div class="row"><input type="number" min="0.1" max="10" step="0.1" value="2" oninput="document.getElementById('throughput').value=this.value; computeScenario();" /></div>
+          </div>
+          <div>
+            <label for="handoffs">Handoffs (count)</label>
+            <input id="handoffs" type="range" min="1" max="6" value="3" />
+            <div class="row"><input type="number" min="1" max="6" value="3" oninput="document.getElementById('handoffs').value=this.value; computeScenario();" /></div>
+            <label class="row" style="margin-top:8px; align-items:center;">
+              <input id="qa" type="checkbox" checked style="width:auto;" /> <span>QA harness enabled</span>
+            </label>
+          </div>
+        </div>
 
-  // Utility: safe number formatters
-  const fmt = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
-  const pct = (v)=> (v==null? '—' : new Intl.NumberFormat(undefined, { style:'percent', maximumFractionDigits:1 }).format(v));
+        <div class="sep"></div>
+        <p class="mono" id="bluf">—</p>
+        <button id="copyBtn" class="btn copy" onclick="copyBLUF()">Copy BLUF</button>
+      </div>
+      <p class="muted" style="margin-top:8px;">Model notes: lead time via Little’s Law (≈ WIP / throughput). Rework risk is a simple illustrative heuristic to guide discussion, not a forecast.</p>
 
-  async function loadCSV(url){
-    const res = await fetch(url, { cache:'no-cache' });
-    if(!res.ok) throw new Error('Fetch failed: '+res.status);
-    const text = await res.text();
-    // Simple CSV parser (no quoted commas in our file)
-    const [header, ...lines] = text.trim().split(/\r?\n/);
-    const cols = header.split(',').map(h=>h.trim());
-    return lines.map(line=>{
-      const vals = line.split(',');
-      const row = {}; cols.forEach((c,i)=> row[c]=vals[i]!==undefined? vals[i].trim(): '' );
-      // coerce types we expect
-      ['inflow','throughput','wip_eow','lead_time_median_days','on_time_pct','defects_total','defects_escaped','aging_wip_gt_10d','demand','capacity_slots']
-        .forEach(k=> row[k] = row[k]!==''? Number(row[k]): null);
-      return row;
-    });
-  }
+      <p><a class="btn" href="#qa-wrap">Next → Q&amp;A &amp; Wrap</a> <a class="btn" href="#bank-3-scene">Back ↑</a></p>
+    </section>
 
-  function toSeries(rows){
-    // Expect ascending time order; keep last 12
-    const last = rows.slice(-12);
-    const labels = last.map(r=> r.week_start);
-    return {
-      labels,
-      inflow: last.map(r=> r.inflow),
-      throughput: last.map(r=> r.throughput),
-      wip: last.map(r=> r.wip_eow),
-      lead: last.map(r=> r.lead_time_median_days),
-      ontime: last.map(r=> r.on_time_pct),
-      defectsTotal: last.map(r=> r.defects_total),
-      defectsEsc: last.map(r=> r.defects_escaped),
-      aging: last.map(r=> r.aging_wip_gt_10d),
-      demand: last.map(r=> r.demand),
-      capacity: last.map(r=> r.capacity_slots),
-      latest: last[last.length-1]
-    };
-  }
+    <!-- Q&A / Wrap -->
+    <section id="qa-wrap">
+      <h2>Q&amp;A and Wrap</h2>
+      <div class="card">
+        <ul>
+          <li>90‑day success metrics?</li>
+          <li>Where does work stall today (intake, review, UAT)?</li>
+          <li>Toolchain &amp; request flow (SQL/PBI/Git)?</li>
+          <li>Relief valve when WIP &gt; cap?</li>
+          <li>Member‑impact tie‑back?</li>
+        </ul>
+        <p><strong>Pilot ask:</strong> “I can baseline your flow (WIP/lead‑time + QA gate) in one sprint.”</p>
+        <p><a class="btn" href="#demo-start">Back to Start ↑</a></p>
+      </div>
+    </section>
 
-  function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstChild; }
-
-  function renderKPIs(s){
-    const escRate = s.latest.defects_total? (s.latest.defects_escaped / s.latest.defects_total): 0;
-    const kpis = [
-      { label:'WIP (in progress)', value: fmt.format(s.latest.wip_eow) },
-      { label:'Throughput (done/week)', value: fmt.format(s.latest.throughput) },
-      { label:'Median Lead Time (days)', value: fmt.format(s.latest.lead_time_median_days) },
-      { label:'On‑Time %', value: fmt.format(s.latest.on_time_pct) + '%' },
-      { label:'Defect Escape', value: `${fmt.format(s.latest.defects_escaped)}/${fmt.format(s.latest.defects_total)} (${fmt.format(Math.round(escRate*100))}%)` },
-      { label:'Aging WIP (>10d)', value: fmt.format(s.latest.aging_wip_gt_10d) }
-    ];
-    const grid = document.getElementById('kpis');
-    grid.innerHTML = '';
-    kpis.forEach(k=>{
-      grid.appendChild(el(`<div class="card kpi"><h3>${k.label}</h3><div class="v">${k.value}</div></div>`));
-    });
-  }
-
-  function renderCapacity(s){
-    const tbody = document.querySelector('#capTable tbody');
-    const cap = s.latest.capacity_slots; const dem = s.latest.demand;
-    const load = cap? (dem/cap): 0; const cls = load<=0.9? 'ok' : (load<=1? 'warn':'risk');
-    tbody.innerHTML = `<tr><td>${fmt.format(cap)}</td><td>${fmt.format(dem)}</td><td class="${cls}">${pct(load)}</td></tr>`;
-  }
-
-  function renderRisks(s){
-    const items = [];
-    if(s.latest.demand > s.latest.throughput){ items.push(`Backlog pressure: demand (${s.latest.demand}) exceeds throughput (${s.latest.throughput}). → Action: review WIP, defer lower‑value items, protect capacity.`); }
-    if(s.latest.on_time_pct < 90){ items.push(`On‑Time below target (now ${s.latest.on_time_pct}%). → Action: confirm commit dates, escalate blockers, trim WIP.`); }
-    const escRate = s.latest.defects_total? (s.latest.defects_escaped/s.latest.defects_total): 0;
-    if(escRate > 0.10){ items.push(`Quality risk: defect escape ${(escRate*100).toFixed(0)}%. → Action: tighten Definition of Done/UAT checks.`); }
-    if(s.latest.wip_eow > WIP_CAP){ items.push(`WIP above cap (${s.latest.wip_eow} > ${WIP_CAP}). → Action: pause starts until aging items move.`); }
-    if(items.length===0) items.push('No material risks detected this week. Keep WIP under cap and monitor aging WIP.');
-    const ul = document.getElementById('risks');
-    ul.innerHTML = items.map(t=>`<li>${t}</li>`).join('');
-  }
-
-  function chartFlow(ctx, s){
-    const capLine = new Array(s.labels.length).fill(WIP_CAP);
-    return new Chart(ctx, {
-      type:'line',
-      data:{ labels:s.labels, datasets:[
-        { label:'Inflow', data:s.inflow, tension:0.25, borderWidth:2, pointRadius:0 },
-        { label:'Throughput', data:s.throughput, tension:0.25, borderWidth:2, pointRadius:0 },
-        { label:'WIP (EoW)', data:s.wip, tension:0.25, borderWidth:2, pointRadius:0 },
-        { label:'WIP Cap', data:capLine, borderDash:[6,6], borderWidth:2, pointRadius:0 }
-      ]},
-      options:{
-        interaction:{ mode:'index', intersect:false },
-        plugins:{ legend:{ position:'bottom' } },
-        scales:{ x:{ grid:{ display:false } }, y:{ beginAtZero:true } }
-      }
-    });
-  }
-
-  function chartQuality(ctx, s){
-    return new Chart(ctx, {
-      type:'line',
-      data:{ labels:s.labels, datasets:[
-        { label:'Lead Time (days)', data:s.lead, yAxisID:'y', tension:0.25, borderWidth:2, pointRadius:0 },
-        { label:'On‑Time %', data:s.ontime, yAxisID:'y1', tension:0.25, borderWidth:2, pointRadius:0 }
-      ]},
-      options:{
-        interaction:{ mode:'index', intersect:false },
-        plugins:{ legend:{ position:'bottom' } },
-        scales:{
-          y:{ beginAtZero:true, title:{ display:true, text:'Days' } },
-          y1:{ beginAtZero:true, min:70, max:100, position:'right', title:{ display:true, text:'%' }, grid:{ drawOnChartArea:false } },
-          x:{ grid:{ display:false } }
-        }
-      }
-    });
-  }
-
-  async function main(){
-    const url = (USE_LOCAL? LOCAL_PATH : RAW_URL);
-    const rows = await loadCSV(url).catch(async (e)=>{
-      console.warn('Primary CSV fetch failed, falling back to embedded sample.', e);
-      // Minimal fallback (8 weeks) if CSV missing — replace by committing data/bank_scorecard.csv
-      const sample = [
-        {week_start:'2025-06-30', inflow:18, throughput:16, wip_eow:14, lead_time_median_days:11, on_time_pct:86, defects_total:6, defects_escaped:1, aging_wip_gt_10d:4, demand:18, capacity_slots:20},
-        {week_start:'2025-07-07', inflow:17, throughput:17, wip_eow:13, lead_time_median_days:10, on_time_pct:88, defects_total:5, defects_escaped:1, aging_wip_gt_10d:3, demand:17, capacity_slots:20},
-        {week_start:'2025-07-14', inflow:19, throughput:18, wip_eow:12, lead_time_median_days:10, on_time_pct:90, defects_total:4, defects_escaped:0, aging_wip_gt_10d:3, demand:19, capacity_slots:21},
-        {week_start:'2025-07-21', inflow:20, throughput:18, wip_eow:14, lead_time_median_days:10, on_time_pct:89, defects_total:5, defects_escaped:1, aging_wip_gt_10d:4, demand:20, capacity_slots:19},
-        {week_start:'2025-07-28', inflow:16, throughput:17, wip_eow:13, lead_time_median_days:9, on_time_pct:91, defects_total:4, defects_escaped:0, aging_wip_gt_10d:3, demand:16, capacity_slots:20},
-        {week_start:'2025-08-04', inflow:18, throughput:19, wip_eow:12, lead_time_median_days:9, on_time_pct:92, defects_total:4, defects_escaped:0, aging_wip_gt_10d:2, demand:18, capacity_slots:20},
-        {week_start:'2025-08-11', inflow:17, throughput:18, wip_eow:11, lead_time_median_days:8, on_time_pct:93, defects_total:3, defects_escaped:0, aging_wip_gt_10d:2, demand:17, capacity_slots:22},
-        {week_start:'2025-08-18', inflow:18, throughput:19, wip_eow:10, lead_time_median_days:8, on_time_pct:94, defects_total:3, defects_escaped:0, aging_wip_gt_10d:2, demand:18, capacity_slots:20}
-      ];
-      return sample;
-    });
-
-    const s = toSeries(rows);
-    renderKPIs(s);
-    renderCapacity(s);
-    renderRisks(s);
-    document.getElementById('updated').textContent = `Week of ${s.latest.week_start}`;
-
-    const fctx = document.getElementById('chartFlow').getContext('2d');
-    chartFlow(fctx, s);
-    const qctx = document.getElementById('chartQuality').getContext('2d');
-    chartQuality(qctx, s);
-  }
-
-  window.addEventListener('DOMContentLoaded', main);
-  </script>
+    <div class="sep"></div>
+    <p class="muted">© FourTwenty Analytics · This page records anonymous events to <span class="mono">dataLayer</span> (safe without GTM/GA).</p>
+  </div>
 </body>
 </html>
